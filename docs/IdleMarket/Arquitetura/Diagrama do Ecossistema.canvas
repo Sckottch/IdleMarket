@@ -1,0 +1,16 @@
+{
+	"nodes":[
+		{"id":"9d2028d0cbff538c","x":-284,"y":-420,"width":250,"height":60,"color":"4","type":"text","text":"Backend: Node.js API"},
+		{"id":"60acd629df6f6da0","x":100,"y":-280,"width":250,"height":60,"color":"1","type":"text","text":"Frontend: React.js\n"},
+		{"id":"b852315781841c21","x":-680,"y":-280,"width":250,"height":60,"color":"5","type":"text","text":"Banco de Dados: PostgreSQL"},
+		{"id":"4d6fc5e25b48da4a","x":-284,"y":-660,"width":250,"height":60,"color":"6","type":"text","text":"Jogo: Unity WebGL\n"}
+	],
+	"edges":[
+		{"id":"0fb0dfcabe9c4c9a","fromNode":"9d2028d0cbff538c","fromSide":"left","toNode":"b852315781841c21","toSide":"top"},
+		{"id":"535f4ac0f1306ebf","fromNode":"b852315781841c21","fromSide":"right","toNode":"9d2028d0cbff538c","toSide":"bottom"},
+		{"id":"bafc9da349d96f54","fromNode":"9d2028d0cbff538c","fromSide":"right","toNode":"60acd629df6f6da0","toSide":"top"},
+		{"id":"30bc9118d3a83fcd","fromNode":"60acd629df6f6da0","fromSide":"left","toNode":"9d2028d0cbff538c","toSide":"bottom"},
+		{"id":"2d66821c287af3d4","fromNode":"9d2028d0cbff538c","fromSide":"top","toNode":"4d6fc5e25b48da4a","toSide":"bottom"},
+		{"id":"732a21bd1767cb6c","fromNode":"4d6fc5e25b48da4a","fromSide":"right","toNode":"9d2028d0cbff538c","toSide":"top"}
+	]
+}

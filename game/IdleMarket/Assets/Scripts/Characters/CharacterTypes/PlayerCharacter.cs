@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerCharacter : Character
@@ -7,6 +8,10 @@ public class PlayerCharacter : Character
     public void Initialize(PlayerData data)
     {
         Data = data;
-        InitializeStats(data.level);
+        List<Equipment> equippedEquipments = new();
+
+        equippedEquipments = data.equipments.FindAll(e => e.isEquipped);
+
+        InitializeStats(data.level, equippedEquipments);
     }
 }

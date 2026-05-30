@@ -5,10 +5,10 @@ public class PlayerData
 {
     public string id;
     public string username;
-    public string gold;
+    public int gold;
 
     public int level;
     public int xp;
 
-    //public List<Equipment> equipments;
+    public List<Equipment> equipments;
 }

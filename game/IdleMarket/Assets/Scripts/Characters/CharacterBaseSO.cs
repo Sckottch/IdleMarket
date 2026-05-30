@@ -7,8 +7,8 @@ public class CharacterBaseSO : ScriptableObject
     public float healthBase;
     public float healthPerLevel;
 
-    public float atackBase;
-    public float atackPerLevel;
+    public float attackBase;
+    public float attackPerLevel;
 
     public float defenseBase;
     public float defensePerLevel;

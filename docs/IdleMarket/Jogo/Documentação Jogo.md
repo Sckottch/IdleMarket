@@ -17,7 +17,7 @@ Responsável pelo loop de gameplay focado em progressão automática e obtençã
 ### [[Combate]]
 será baseado em waves, cada combate terá 5 waves, as 4 primeiras são inimigos comuns com a ultima sendo um chefão. O nível dos inimigos será definido no inicio de cada confronto se baseando no nível do jogador.
 
-### Recompensas
+### [[Recompensas]]
 irão escalar conforme o nível dos inimigos, sendo que conforme o nível aumenta as recompensas melhoram, aumentando quantidade de ouro e experiencia além da chance de vir um equipamento. Os chefões sempre dão equipamentos e a qualidade deles são maior que os deixados por inimigos comuns.
 
 ### Nível
@@ -26,7 +26,7 @@ O jogador inicia no nível 1, podendo chegar até o 50, com os inimigos podendo 
 ### Derrota
 Ao perder um combate, reinicia o confronto a partir da primeira wave, perdendo 5% de seus ouros.
 
-### Equipamentos
+### [[Equipamentos]]
 São divididos em 4 peças: capacete, espada, armadura e botas, tendo 5 raridades(indicadas por estrelas e cor da borda do item). Esses itens darão status baseados em sua peça(definindo o status principal) e raridade(definindo o valor), além de terem até 4 sub status com a quantidade sendo baseada na raridade. Os valores de Status q darão será um range, segue a tabela explicando melhor:
 
 | Peça     | Status     |

@@ -45,7 +45,7 @@ Velocidade, Chance Crítica e Dano Crítico só aumento via equipamentos
 | 31-40 | 3-4 peças            | 2-4★     | 4 peças de 4★            |
 | 41-50 | 4 peças              | 4-5★     | 4 peças de 5★            |
 | 51-55 | 4 peças              | 5★       | 4 peças de 5★            |
-as chances de um inimigo vir com uma peça a mais, indicado como o máximo de pecas q pode possuir é de 40%, por exemplo um inimigo de nível 3 tem 40% de chance de ser criado com um equipamento. Para inimigos nos níveis 21-30, possuem 15% de chance de vir com 2 peças, 60% para 3, e 25% de vir com 4 equipamentos, em relação às raridades segue a tabela:
+as chances de um inimigo vir com uma peça a mais, indicado como o máximo de pecas q pode possuir é de 40%, por exemplo um inimigo de nível 3 tem 40% de chance de ser criado com um equipamento. Para inimigos nos níveis 21-30, possuem 15% de chance de vir com 2 peças, 60% para 3, e 25% de vir com 4 equipamentos, inimigos de nível 41+ sempre terão 4 peças equipadas, pois é o máximo planejado. em relação às raridades segue a tabela:
 
 | nível\Raridade | 1★   | 2★  | 3★  | 4★  | 5★   |
 | -------------- | ---- | --- | --- | --- | ---- |

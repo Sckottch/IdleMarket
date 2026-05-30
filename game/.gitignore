@@ -1,0 +1,57 @@
+# ===========================================
+# .gitignore — Projeto Unity (game/)
+# Baseado no .gitignore oficial da Unity
+# ===========================================
+
+# Pastas geradas automaticamente pela Unity
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+[Uu]ser[Ss]ettings/
+[Mm]emoryCaptures/
+
+# Build da Unity exportado (WebGL, etc.) — gerado, não versionar
+[Bb]uild/WebGL/
+
+# Asset meta de pastas ignoradas
+!/[Aa]ssets/**/*.meta
+
+# Arquivos gerados de IDE (Visual Studio / Rider)
+.vs/
+.vsconfig
+*.csproj
+*.unityproj
+*.sln
+*.slnx
+*.suo
+*.user
+*.userprefs
+*.pidb
+*.booproj
+*.svd
+*.pdb
+*.mdb
+*.opendb
+*.VC.db
+
+# Cache do Rider
+/[Aa]ssets/Plugins/Editor/JetBrains*
+
+# Relatórios de crash da Unity
+sysinfo.txt
+crashlytics-build.properties
+
+# Pacotes / addressables gerados
+/[Aa]ssets/[Aa]ddressable[Aa]ssets[Dd]ata/*/*.bin*
+/[Aa]ssets/[Ss]treamingAssets/aa.meta
+/[Aa]ssets/[Ss]treamingAssets/aa/*
+
+# Builds e artefatos diversos
+*.apk
+*.aab
+*.unitypackage
+*.app
+ExportedObj/

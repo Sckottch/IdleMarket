@@ -1,0 +1,41 @@
+# ===========================================
+# .gitignore RAIZ — regras gerais do projeto
+# Regras específicas de cada frente estão em:
+#   game/.gitignore   (Unity)
+#   server/.gitignore (Node.js / backend)
+#   web/.gitignore    (React / Vite)
+# ===========================================
+
+# --- Sistema operacional ---
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+desktop.ini
+$RECYCLE.BIN/
+
+# --- Editores / IDEs ---
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*.swo
+*~
+
+# --- Variáveis de ambiente (NUNCA versionar segredos) ---
+.env
+.env.*
+!.env.example
+
+# --- Logs e temporários ---
+*.log
+logs/
+tmp/
+temp/
+
+# --- Obsidian (documentação) ---
+# workspace.json guarda estado da UI e muda toda hora — não vale a pena versionar
+docs/IdleMarket/.obsidian/workspace.json
+docs/IdleMarket/.obsidian/workspace-mobile.json

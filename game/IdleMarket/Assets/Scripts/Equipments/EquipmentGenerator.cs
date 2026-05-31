@@ -5,10 +5,16 @@ using UnityEngine;
 
 public static class EquipmentGenerator
 {
-    public static Equipment GenerateEquipment(int rarity)
+    public static Equipment GenerateRandomEquipment(int rarity)
     {
-        EquipmentType type = (EquipmentType)UnityEngine.Random.Range(0, Enum.GetValues(typeof(EquipmentType)).Length);
+        EquipmentType randomType = (EquipmentType)UnityEngine.Random.Range(
+            0, Enum.GetValues(typeof(EquipmentType)).Length);
 
+        return GenerateEquipment(rarity, randomType);
+    }
+
+    public static Equipment GenerateEquipment(int rarity, EquipmentType type)
+    {
         StatType mainStat = EquipmentHelper.GetMainStat(type);
 
         List<SubStat> subStats = GetSubStatsByRarity(rarity);

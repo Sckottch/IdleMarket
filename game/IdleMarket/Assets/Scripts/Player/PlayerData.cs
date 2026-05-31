@@ -10,5 +10,5 @@ public class PlayerData
     public int level;
     public int xp;
 
-    public List<Equipment> equipments;
+    public List<Equipment> equipments = new();
 }

@@ -22,7 +22,7 @@ Velocidade, Chance Crítica e Dano Crítico só aumento via equipamentos
 
 -----
 
-## Mecânica de Turnos
+## [[Sistema de Turnos]]
 
 - Cada turno, jogador e inimigo atacam **uma vez**
 - O de maior velocidade ataca primeiro

@@ -15,3 +15,13 @@ public enum EquipmentType
     Boots,
     Sword
 }
+
+public enum CombatState
+{
+    Idle,
+    WaveStart,
+    Battle,
+    WaveWon,
+    Defeat,
+    Victory
+}

@@ -47,7 +47,8 @@ public struct StatRange
 
     public float Roll()
     {
-        return Random.Range(min, max);
+        float value = Random.Range(min, max);
+        return Mathf.Round(value * 10f) / 10f;
     }
 
     public float Normalize(float value)

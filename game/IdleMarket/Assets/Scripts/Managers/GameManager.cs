@@ -17,6 +17,15 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
         if(useMock)
         {
+            PlayerData = new PlayerData
+            {
+                id = Guid.NewGuid().ToString(),
+                username = "TestPlayer",
+                gold = 100,
+                level = 50,
+                xp = 0
+            };
+
             CombatService = new MockCombatService(PlayerData);
         }
         else
@@ -25,14 +34,40 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         }
     }
 
+    private void Start()
+    {
+        CombatManager.Instance.ChangeCombatState(CombatState.Idle);
+    }
+
     public void ReportDefeat(Action onComplete)
     {
         StartCoroutine(CombatService.ReportDefeat(newGold =>
         {
             PlayerData.gold = newGold;
-            onComplete?.Invoke();
 
             Debug.Log($"Player's new gold amount after defeat: {PlayerData.gold}");
+
+            onComplete?.Invoke();
         }));
+    }
+
+    public void ReportVictory(int enemyLevel, bool isBoss, Action onComplete)
+    {
+        StartCoroutine(CombatService.ReportVictory(result =>
+        {
+            PlayerData.level = result.Level;
+            PlayerData.gold = result.Gold;
+            PlayerData.xp = result.Experience;
+            if (result.Equipment != null)
+            {
+                PlayerData.equipments.Add(result.Equipment);
+            }
+
+            Debug.Log($"Player's new gold amount after victory: {PlayerData.gold}");
+            Debug.Log($"Player's new XP amount after victory: {PlayerData.xp}");
+
+            onComplete?.Invoke();  
+        }, 
+        enemyLevel, isBoss));
     }
 }

@@ -47,7 +47,7 @@ Ao perder um confronto, o jogador perde **5% do ouro atual**. O ouro pode chegar
 - **Wave comum:** 70% de chance de dropar um equipamento
 - **Chefão (wave 5):** sempre dropa um equipamento com a raridade máxima baseada em seu nível
 
-A raridade do item dropado é baseada no nível do jogador no momento da vitória:
+A raridade do item dropado é baseada no nível do inimigo no momento da vitória:
 
 |Nível do Jogador|1★|2★|3★|4★|5★|
 |---|---|---|---|---|---|

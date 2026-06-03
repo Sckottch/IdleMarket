@@ -47,10 +47,10 @@ public static class CharacterCalculator
 
     public static bool CanLevelUp(int currentXp, int currentLevel)
     {
-        return currentXp >= GetXpForLevel(currentLevel);
+        return currentXp >= GetXpForLevelUp(currentLevel);
     }
 
-    public static int GetXpForLevel(int level)
+    public static int GetXpForLevelUp(int level)
     {
         return 10 * (level * level) + 100 * level;
     }

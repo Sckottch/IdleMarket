@@ -8,6 +8,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public PlayerData PlayerData { get; private set; }
 
     public ICombatService CombatService { get; private set; }
+    public MockInventoryService InventoryService { get; private set; }
 
     protected override void Awake()
     {
@@ -22,11 +23,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 id = Guid.NewGuid().ToString(),
                 username = "TestPlayer",
                 gold = 100,
-                level = 50,
+                level = 1,
                 xp = 0
             };
 
             CombatService = new MockCombatService(PlayerData);
+            InventoryService = new MockInventoryService(PlayerData);
         }
         else
         {

@@ -52,6 +52,8 @@ public class MockCombatService : ICombatService
 
                 equipmentReward = EquipmentGenerator.GenerateRandomEquipment(rarity);
             }
+
+            equipmentReward.id = Guid.NewGuid().ToString();
         }
 
         int newGold = playerData.gold + goldEarned;

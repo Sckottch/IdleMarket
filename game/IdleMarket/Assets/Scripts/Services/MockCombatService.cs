@@ -36,7 +36,7 @@ public class MockCombatService : ICombatService
 
         Equipment equipmentReward = null;
 
-        bool hasEquipmentReward = UnityEngine.Random.value < 0.7f || isBoss;
+        bool hasEquipmentReward = UnityEngine.Random.value < 0.6f || isBoss;
 
         if (hasEquipmentReward)
         {

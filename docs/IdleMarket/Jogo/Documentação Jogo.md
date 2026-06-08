@@ -10,7 +10,7 @@ Responsável pelo loop de gameplay focado em progressão automática e obtençã
 
 - **Auto Battler:** Os combates ocorrem automaticamente sem necessidade de input do jogador, com ele e o inimigo trocando turnos até que os pontos de vida de algum deles acabe.
 - **Sistema de Drops:** Ao fim de cada combate caso o jogador vença ele, receberá itens, ouro e experiencia, com o Backend validando e salvando os ganhos
-- **Interface:** Exibi na tela o nível, experiencia, vida e ouro atuais do Jogador.
+- Interface: HUD de combate com barras de HP (jogador e inimigo) e XP, mais mais voltada a feedbacks visuais. Dados persistentes e gerenciamento de equipamento ficam no front
 
 ## Progressão
 
@@ -52,6 +52,10 @@ Os sub status podem variar entre Status%(n podendo ser velocidade) e chance e da
 | Chance Critica% | 5-15           |
 | Dano Critico%   | 10-30          |
 A cada equipamento é dado uma pontuação baseado na qualidade de seus valores, quanto mais próximo do maior valor possível, maior a pontuação. Sendo avaliados em um numero de 1-100.
+
+### [[Interface]]
+
+A interface in-game (Unity) cobre só o que pertence à janela de combate: barras de HP do jogador e do inimigo, barra de XP e feedbacks visuais (dano, crítico, drops). Os dados persistentes (ouro, nível, XP detalhado) e o gerenciamento de itens ficam no painel React em volta do WebGL.
 ## Integração
 
 O jogo receberá as informações do jogador ao iniciar, com o Backend sendo responsável pelo sistema de login, com isso enviará sinais sempre q o jogador derrotar um inimigo, e irá esperar receber as recompensas(que serão calculadas pelo Backend) antes de seguir para próxima wave.

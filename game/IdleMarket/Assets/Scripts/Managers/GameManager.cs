@@ -10,6 +10,12 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
     public ICombatService CombatService { get; private set; }
     public MockInventoryService InventoryService { get; private set; }
 
+    #region Events
+
+    public event Action OnProgressionChanged;
+
+    #endregion
+
     protected override void Awake()
     {
         base.Awake();
@@ -67,6 +73,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 
             Debug.Log($"Player's new gold amount after victory: {PlayerData.gold}");
             Debug.Log($"Player's new XP amount after victory: {PlayerData.xp}");
+
+            OnProgressionChanged?.Invoke();
 
             onComplete?.Invoke();  
         }, 

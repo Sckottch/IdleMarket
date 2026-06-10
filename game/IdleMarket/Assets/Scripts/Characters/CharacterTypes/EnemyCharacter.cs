@@ -9,5 +9,6 @@ public class EnemyCharacter : Character
     {
         Level = level;
         InitializeStats(level, equipments);
+        Initialized();
     }
 }

@@ -13,5 +13,7 @@ public class PlayerCharacter : Character
         equippedEquipments = data.equipments.FindAll(e => e.isEquipped);
 
         InitializeStats(data.level, equippedEquipments);
+
+        Initialized();
     }
 }

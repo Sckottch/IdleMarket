@@ -11,9 +11,17 @@ public class CombatManager : SingletonMonoBehaviour<CombatManager>
     [Space(10)]
     [Header("Configurações do Combate")]
     [SerializeField] private int maxWaves = 5;
-    [SerializeField] private float turnInterval = 0.3f;
+    [SerializeField] private float waveAnnouncementInterval = 0.5f;
+
+    [Space(10)]
+    [Header("Animações dos inimigos")]
+    [SerializeField] private RuntimeAnimatorController redEnemyController;
+    [SerializeField] private RuntimeAnimatorController blueEnemyController;
+    [SerializeField] private RuntimeAnimatorController yellowEnemyController;
+    [SerializeField] private RuntimeAnimatorController purpleEnemyController;
 
     private CombatStateMachine stateMachine = new();
+    private EnemyColor lastEnemyColor;
 
     #region Combat States
 
@@ -71,11 +79,16 @@ public class CombatManager : SingletonMonoBehaviour<CombatManager>
         }
     }
 
-    public void SetupWave()
+    public void SetupWave(Action onSetupEnd)
+    {
+        StartCoroutine(SetupWaveRoutine(onSetupEnd));
+    }
+
+    private IEnumerator SetupWaveRoutine(Action onSetupEnd)
     {
         player.Initialize(GameManager.Instance.PlayerData);
 
-        // Add here logic to change enemy's sprite each wave
+        SelectEnemyColor();
 
         if (IsFinalWave)
         {
@@ -84,7 +97,44 @@ public class CombatManager : SingletonMonoBehaviour<CombatManager>
         else
         {
             EnemyGenerator.GenerateCommonEnemy(enemy, ConfrontationLevel);
-        }  
+        }
+
+        GameUIManager.Instance.ShowWaveAnnouncement(CurrentWave, maxWaves, IsFinalWave);
+
+        yield return new WaitForSeconds(waveAnnouncementInterval);
+        onSetupEnd?.Invoke();
+    }
+
+    private void SelectEnemyColor()
+    {
+        EnemyColor newColor;
+
+        do
+        {
+            newColor = (EnemyColor)UnityEngine.Random.Range(0, Enum.GetValues(typeof(EnemyColor)).Length);
+        }
+        while (newColor == lastEnemyColor);
+
+        lastEnemyColor = newColor;
+        switch (newColor)
+        {
+            case EnemyColor.Red:
+                enemy.Animator.SetController(redEnemyController);
+
+                break;
+            case EnemyColor.Blue:
+                enemy.Animator.SetController(blueEnemyController);
+
+                break;
+            case EnemyColor.Yellow:
+                enemy.Animator.SetController(yellowEnemyController);
+
+                break;
+            case EnemyColor.Purple:
+                enemy.Animator.SetController(purpleEnemyController);
+
+                break;
+        }
     }
 
     public void NextWave()
@@ -131,14 +181,21 @@ public class CombatManager : SingletonMonoBehaviour<CombatManager>
     {
         DamageResult result = CombatCalculator.CalculateDamage(attacker.Stats, defender.Stats);
 
+        attacker.SpriteRenderer.sortingOrder = 1;
+        defender.SpriteRenderer.sortingOrder = 0;
+
+        yield return attacker.Animator.Advance();
+
+        attacker.Animator.PlayAttack(result.IsCritical);
+        yield return attacker.Animator.WaitForHit();
+
         defender.TakeDamage(result.Damage);
+        defender.Animator.PlayGuard();
 
-        //add animations here
+        GameUIManager.Instance.ShowDamageNumber(defender, result);
 
-        Debug.Log($"{attacker.name} dealt {result.Damage} damage to {defender.name}. Was Critical hit: {result.IsCritical}");
-        Debug.Log($"{defender.name} has {defender.CurrentHealth} health left.");
-
-        yield return new WaitForSeconds(turnInterval);
+        yield return attacker.Animator.WaitForAttackEnd();
+        yield return attacker.Animator.Return();
     }
 
     public void RestartCombat()
@@ -151,8 +208,10 @@ public class CombatManager : SingletonMonoBehaviour<CombatManager>
     {
         CurrentWave = 1;
         ConfrontationLevel = GameManager.Instance.PlayerData.level;
+        GameUIManager.Instance.BindCharacters(player, enemy);
     }
 
     public EnemyCharacter GetEnemy() => enemy;
     public PlayerCharacter GetPlayer() => player;
+    public int GetMaxWaves() => maxWaves;
 }

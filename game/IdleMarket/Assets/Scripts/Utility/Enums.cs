@@ -25,3 +25,11 @@ public enum CombatState
     Defeat,
     Victory
 }
+
+public enum EnemyColor
+{
+    Red,
+    Purple,
+    Blue,
+    Yellow
+}

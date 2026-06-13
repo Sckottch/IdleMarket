@@ -32,6 +32,8 @@ public abstract class Character : MonoBehaviour
     {
         Stats = CharacterCalculator.CalculateStats(baseData, level, equipments);
         CurrentHealth = Stats.health;
+
+        Animator.ResetVisual();
     }
 
     public void TakeDamage(float damage)

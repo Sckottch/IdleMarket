@@ -44,19 +44,19 @@ Ao perder um confronto, o jogador perde **5% do ouro atual**. O ouro pode chegar
 
 ## Drops de Equipamento
 
-- **Wave comum:** 70% de chance de dropar um equipamento
+- **Wave comum:** 60% de chance de dropar um equipamento
 - **Chefão (wave 5):** sempre dropa um equipamento com a raridade máxima baseada em seu nível
 
 A raridade do item dropado é baseada no nível do inimigo no momento da vitória:
 
-|Nível do Jogador|1★|2★|3★|4★|5★|
-|---|---|---|---|---|---|
-|1-4|75%|25%|0%|0%|0%|
-|5-14|10%|60%|30%|0%|0%|
-|15-24|0%|10%|60%|30%|0%|
-|25-34|0%|0%|10%|60%|30%|
-|35-44|0%|0%|0%|25%|75%|
-|45-50|0%|0%|0%|0%|100%|
+| Nível do Jogador | 1★  | 2★  | 3★  | 4★  | 5★   |
+| ---------------- | --- | --- | --- | --- | ---- |
+| 1-4              | 75% | 25% | 0%  | 0%  | 0%   |
+| 5-14             | 10% | 60% | 30% | 0%  | 0%   |
+| 15-24            | 0%  | 10% | 60% | 30% | 0%   |
+| 25-34            | 0%  | 0%  | 10% | 60% | 30%  |
+| 35-44            | 0%  | 0%  | 0%  | 25% | 75%  |
+| 45-50            | 0%  | 0%  | 0%  | 0%  | 100% |
 
 ---
 

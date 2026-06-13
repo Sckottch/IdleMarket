@@ -55,7 +55,7 @@ A cada equipamento é dado uma pontuação baseado na qualidade de seus valores,
 
 ### [[Interface]]
 
-A interface in-game (Unity) cobre só o que pertence à janela de combate: barras de HP do jogador e do inimigo, barra de XP e feedbacks visuais (dano, crítico, drops). Os dados persistentes (ouro, nível, XP detalhado) e o gerenciamento de itens ficam no painel React em volta do WebGL.
+A interface in-game (Unity) cobre só o que pertence à janela de combate: barras de HP do jogador e do inimigo, barra de XP e feedbacks visuais (dano, crítico). Os dados persistentes (ouro, nível, XP detalhado) e o gerenciamento de itens ficam no painel React em volta do WebGL.
 ## Integração
 
 O jogo receberá as informações do jogador ao iniciar, com o Backend sendo responsável pelo sistema de login, com isso enviará sinais sempre q o jogador derrotar um inimigo, e irá esperar receber as recompensas(que serão calculadas pelo Backend) antes de seguir para próxima wave.

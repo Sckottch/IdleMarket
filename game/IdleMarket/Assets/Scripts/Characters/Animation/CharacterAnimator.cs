@@ -1,25 +1,31 @@
 using System.Collections;
 using UnityEngine;
 
+[RequireComponent(typeof(Character))]
 [RequireComponent(typeof(Animator))]
 public class CharacterAnimator : MonoBehaviour
 {
     [SerializeField] private float advanceOffset;
     [SerializeField] private float moveSpeed = 8f;
+    [SerializeField] private float fadeDuration = 0.3f;
 
     private static readonly int RunHash = Animator.StringToHash("Run");
     private static readonly int Attack1Hash = Animator.StringToHash("Attack1");
     private static readonly int Attack2Hash = Animator.StringToHash("Attack2");
     private static readonly int GuardHash = Animator.StringToHash("Guard");
 
+    private Character character;
     private Animator animator;
     private Vector3 homePosition;
 
     private bool hitReceived;
     private bool attackEnded;
 
+    private Coroutine deathRoutine;
+
     private void Awake()
     {
+        character = GetComponent<Character>();
         animator = GetComponent<Animator>();
         homePosition = transform.position;
     }
@@ -36,6 +42,12 @@ public class CharacterAnimator : MonoBehaviour
     }
 
     public void PlayGuard() => animator.SetTrigger(GuardHash);
+
+    public void PlayDeath()
+    {
+        if (deathRoutine != null) StopCoroutine(deathRoutine);
+        deathRoutine = StartCoroutine(DeathRoutine());
+    }
 
     public IEnumerator WaitForHit()
     {
@@ -78,6 +90,37 @@ public class CharacterAnimator : MonoBehaviour
         transform.position = homePosition;
 
         animator.SetBool(RunHash, false);
+    }
+
+    private IEnumerator DeathRoutine()
+    {
+        float elapsed = 0f;
+
+        while (elapsed < fadeDuration)
+        {
+            float t = elapsed / fadeDuration;
+
+            SetAlpha(1f - t);
+
+            elapsed += Time.deltaTime;
+
+            yield return null;
+        }
+
+        SetAlpha(0f);
+    }
+
+    public void ResetVisual()
+    {
+        if (deathRoutine != null) { StopCoroutine(deathRoutine); deathRoutine = null;  }
+        SetAlpha(1f);
+    }
+
+    private void SetAlpha(float alpha)
+    {
+        Color current = character.SpriteRenderer.color;
+        current.a = alpha;
+        character.SpriteRenderer.color = current;
     }
 
     public void SetController(RuntimeAnimatorController controller) => animator.runtimeAnimatorController = controller;

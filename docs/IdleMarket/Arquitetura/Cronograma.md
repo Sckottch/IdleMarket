@@ -14,14 +14,14 @@ O projeto é dividido em **5 fases sequenciais**, onde cada fase precisa estar f
 
 ### Entregas
 
-- [ ] Estrutura de cenas e navegação básica
-- [ ] Sistema de combate (auto battler, turnos, cálculo de dano)
-- [ ] Sistema de waves (4 comuns + 1 chefão)
-- [ ] Sistema de nível e experiência do jogador
-- [ ] Sistema de drops (gerado localmente via mock por enquanto)
-- [ ] Sistema de equipamentos (peças, raridade, status, sub-status, rating)
-- [ ] Penalidade de derrota (perda de 5% de ouro)
-- [ ] Interface in-game (vida, nível, XP, ouro)
+- [x] Estrutura de cenas e navegação básica
+- [x] Sistema de combate (auto battler, turnos, cálculo de dano)
+- [x] Sistema de waves (4 comuns + 1 chefão)
+- [x] Sistema de nível e experiência do jogador
+- [x] Sistema de drops (gerado localmente via mock por enquanto)
+- [x] Sistema de equipamentos (peças, raridade, status, sub-status, rating)
+- [x] Penalidade de derrota (perda de 5% de ouro)
+- [x] Interface in-game (vida, nível, XP, ouro)
 
 ### Critério de conclusão
 
@@ -113,7 +113,7 @@ O projeto é dividido em **5 fases sequenciais**, onde cada fase precisa estar f
 
 | Fase | Frente           | Depende de  | Status      |
 | ---- | ---------------- | ----------- | ----------- |
-| 1    | Unity (Jogo)     | —           | 🔲 Pendente |
+| 1    | Unity (Jogo)     | —           | ✅ Concluída |
 | 2    | Banco de Dados   | —           | 🔲 Pendente |
 | 3    | Backend + Unity  | Fases 1 e 2 | 🔲 Pendente |
 | 4    | Frontend         | —           | 🔲 Pendente |

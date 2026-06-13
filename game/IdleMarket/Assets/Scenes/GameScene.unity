@@ -383,6 +383,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8ad29764bb3e02c4fa0b4eabf57ce759, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameUIManager
+  gameCamera: {fileID: 519420031}
   playerInfoUI: {fileID: 496018040}
   enemyInfoUI: {fileID: 1769111444}
   damageNumber: {fileID: 92281273}
@@ -3685,7 +3686,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7384290322352760091, guid: f9330e5de94a14c6ba6583d83d65ef08, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
@@ -3708,6 +3709,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterAnimator
   advanceOffset: -4
   moveSpeed: 8
+  fadeDuration: 0.3
 --- !u!1 &1334102355
 GameObject:
   m_ObjectHideFlags: 0
@@ -4636,6 +4638,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::CharacterAnimator
   advanceOffset: 4
   moveSpeed: 8
+  fadeDuration: 0.3
 --- !u!1 &2113274143
 GameObject:
   m_ObjectHideFlags: 0

@@ -52,7 +52,7 @@ inimigo morreu   │        │  jogador morreu
 
 | Estado     | Responsabilidade                                          | Transiciona para                               |
 | ---------- | --------------------------------------------------------- | ---------------------------------------------- |
-| WaveStart  | Gera inimigo + loadout do player, reseta HP, define ordem | Battle                                         |
+| WaveStart  | Gera inimigo + loadout do player, reseta HP, define ordem; mostra o aviso de wave e segura ~0,5s antes do Battle (deixou de ser instantâneo) | Battle                                         |
 | Battle     | Troca de golpes em tempo real (coroutine)                 | WaveWon (inimigo morre) / Defeat (player morre)|
 | WaveWon    | Espera recompensas; checa se há mais waves                | WaveStart (há waves) / Victory (era a wave 5)  |
 | Defeat     | Aplica penalidade de -5% de ouro                          | WaveStart (reinicia wave 1)                    |
@@ -135,9 +135,10 @@ O estado **Battle** dispara, no seu `Enter`, uma coroutine no `CombatManager`:
 ```
 RunBattle():
   enquanto ambos vivos:
-    mais rápido ataca  →  espera X seg (animação)
+    mais rápido executa a coreografia do ataque
+      (avança → ataca → aguarda o sinal de impacto OnHit → aplica dano → volta)
     se alvo morreu → break
-    mais lento ataca   →  espera X seg
+    mais lento executa a coreografia
     se alvo morreu → break
   inimigo morreu → ChangeState(WaveWon)
   jogador morreu → ChangeState(Defeat)

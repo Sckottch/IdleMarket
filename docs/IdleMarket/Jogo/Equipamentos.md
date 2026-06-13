@@ -76,7 +76,7 @@ Cada equipamento recebe uma pontuação de **0 a 100** baseada na qualidade de s
 
 ### Chance de Drop por Wave
 
-- **Wave comum:** 70% de chance de dropar um equipamento
+- **Wave comum:** 60% de chance de dropar um equipamento
 - **Chefão (wave 5):** sempre dropa um equipamento, com a raridade máxima baseado em seu nível
 
 ### Raridade do Drop

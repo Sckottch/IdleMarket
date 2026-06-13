@@ -190,7 +190,9 @@ public class CombatManager : SingletonMonoBehaviour<CombatManager>
         yield return attacker.Animator.WaitForHit();
 
         defender.TakeDamage(result.Damage);
-        defender.Animator.PlayGuard();
+
+        if (defender.IsAlive) defender.Animator.PlayGuard();
+        else defender.Animator.PlayDeath();
 
         GameUIManager.Instance.ShowDamageNumber(defender, result);
 

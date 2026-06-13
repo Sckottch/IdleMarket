@@ -12,3 +12,4 @@
 [[Documentação Jogo]]
 [[Modelagem do Banco de Dados]]
 [[Cronograma]]
+[[Decisões]]

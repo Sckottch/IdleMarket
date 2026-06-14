@@ -35,10 +35,10 @@ O projeto é dividido em **5 fases sequenciais**, onde cada fase precisa estar f
 
 ### Entregas
 
-- [ ] Ambiente configurado (PostgreSQL local + Prisma)
-- [ ] Tabelas criadas: `Usuario`, `Personagem`, `Equipamento`
-- [ ] Migrations geradas e aplicadas
-- [ ] Validação manual: inserção, leitura e atualização de registros funcionando
+- [x] Ambiente configurado (PostgreSQL local + Prisma)
+- [x] Tabelas criadas: `Usuario`, `Personagem`, `Equipamento`
+- [x] Migrations geradas e aplicadas
+- [x] Validação manual: inserção, leitura e atualização de registros funcionando
 
 ### Critério de conclusão
 
@@ -114,7 +114,7 @@ O projeto é dividido em **5 fases sequenciais**, onde cada fase precisa estar f
 | Fase | Frente           | Depende de  | Status      |
 | ---- | ---------------- | ----------- | ----------- |
 | 1    | Unity (Jogo)     | —           | ✅ Concluída |
-| 2    | Banco de Dados   | —           | 🔲 Pendente |
+| 2    | Banco de Dados   | —           | ✅ Concluída |
 | 3    | Backend + Unity  | Fases 1 e 2 | 🔲 Pendente |
 | 4    | Frontend         | —           | 🔲 Pendente |
 | 5    | Integração Final | Fases 3 e 4 | 🔲 Pendente |

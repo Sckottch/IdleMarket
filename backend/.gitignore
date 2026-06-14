@@ -44,3 +44,5 @@ prisma/generated/
 # Diversos
 *.tsbuildinfo
 .DS_Store
+
+/generated/prisma

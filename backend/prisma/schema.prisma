@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+//ENUMS
+
+enum StatType {
+  Health
+  Attack
+  Defense
+  Speed
+  CriticalChance
+  CriticalDamage
+}
+
+enum EquipmentType {
+  Helmet
+  Armor
+  Boots
+  Sword
+}
+
+//MODELS
+
+model User {
+  id String @id @default(uuid())
+
+  username String @unique
+  passwordHash String
+  gold Int @default(100)
+
+  character Character?
+  equipments Equipment[]
+}
+
+model Character {
+  id String @id @default(uuid())
+
+  userId String @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  level Int @default(1)
+  xp Int @default(0)
+}
+
+model Equipment {
+  id String @id @default(uuid())
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  equipmentType EquipmentType
+  rarity Int
+  mainStat StatType
+  mainStatValue Float
+  rating Int
+
+  subStats SubStat[]
+
+  isEquipped Boolean @default(false)
+  isForSale Boolean @default(false)
+  salePrice Int?
+}
+
+model SubStat {
+  id String @id @default(uuid())
+
+  equipmentId String
+  equipment Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+
+  statType StatType
+  statValue Float
+}

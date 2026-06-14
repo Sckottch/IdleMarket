@@ -6,7 +6,7 @@
 
 - **Tipos categóricos (peça, status):** `enum` nativo do Prisma/Postgres, ao invés de String solta ou Int. O banco valida os valores, continua legível em queries e é armazenado de forma eficiente.
 - **Um único enum `TipoStatus`:** serve tanto para `statusPrincipal` quanto para os sub-status. As restrições (velocidade não pode ser sub-status; status principal é definido pela peça) são garantidas pela **lógica do gerador**, não por enums separados.
-- **Sub-status no banco:** ficam como 4 pares de colunas achatadas. No código C# viram uma `List<SubStatus>`. O **Backend faz a tradução**: lê as colunas e monta um array no JSON da API, então a Unity recebe uma lista limpa.
+- **Sub-status no banco:** tabela própria `SubStatus` (`SubStat` no código), relação 1:N com `Equipamento` — cada sub-status é uma linha. Espelha 1:1 a `List<SubStat>` do C#. Escolha motivada pelo filtro do marketplace: filtrar por tipo/valor de sub-status vira um `WHERE` simples e indexável, em vez do `WHERE` combinatório que as colunas achatadas exigiriam.
 - **Serialização na Unity:** usaremos Newtonsoft.Json (não o JsonUtility nativo), por causa dos campos anuláveis e da conversão enum↔string.
 - **Limite de 200 itens:** regra de negócio validada no Backend, não é constraint do schema.
 
@@ -65,21 +65,19 @@ enum TipoStatus {
 | valorPrincipal  | Float      | valor rolado do status principal |
 | rating          | Int        | 0 a 100, calculado na geração    |
 
-### Sub-Status (até 4, conforme raridade)
-| Campo            | Tipo        | Notas               |
-| ---------------- | ----------- | ------------------- |
-| subStatus1_Tipo  | TipoStatus? | nulo se não existir |
-| subStatus1_Valor | Float?      |                     |
-| subStatus2_Tipo  | TipoStatus? |                     |
-| subStatus2_Valor | Float?      |                     |
-| subStatus3_Tipo  | TipoStatus? |                     |
-| subStatus3_Valor | Float?      |                     |
-| subStatus4_Tipo  | TipoStatus? |                     |
-| subStatus4_Valor | Float?      |                     |
-
 ### Controle de Mercado e Inventário
 | Campo        | Tipo    | Notas                        |
 | ------------ | ------- | ---------------------------- |
 | estaEquipado | Boolean | @default(false)              |
 | estaAVenda   | Boolean | @default(false)              |
 | precoVenda   | Int?    | nulo quando não está à venda |
+
+## model SubStatus
+
+| Campo         | Tipo        | Notas                |
+| ------------- | ----------- | -------------------- |
+| id            | String      | @id @default(uuid()) |
+| equipamentoId | String      | FK para Equipamento  |
+| equipamento   | Equipamento | @relation(...)       |
+| tipo          | TipoStatus  | enum                 |
+| valor         | Float        |                     |

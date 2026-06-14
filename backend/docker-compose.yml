@@ -1,0 +1,16 @@
+services:
+  database:
+    image: postgres:17
+    container_name: idlemarket-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: idlemarket
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: idlemarket
+    ports:
+      - "5433:5432"
+    volumes:
+      - idlemarket-data:/var/lib/postgresql/data
+
+volumes:
+  idlemarket-data:

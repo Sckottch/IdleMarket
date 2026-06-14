@@ -1,8 +1,6 @@
 import "dotenv/config"
 import { PrismaPg } from "@prisma/adapter-pg"
 import { PrismaClient } from "../generated/prisma/client.js"
-import prismaConfig from "../prisma.config.js"
-import { use } from "react"
 
 const adapter = new PrismaPg({connectionString: process.env.DATABASE_URL})
 const prisma = new PrismaClient({ adapter })
@@ -50,7 +48,7 @@ async function main() {
 
     const findEquipment = await prisma.equipment.findMany({ include: { subStats: true }})
 
-    console.log("Equipamento criado: ", findEquipment)
+    console.log("Equipamento criado: ", JSON.stringify(findEquipment, null, 2))
 
     await prisma.equipment.update({
         where: {
@@ -62,7 +60,7 @@ async function main() {
     })
 
     const updatedEquipment = await prisma.equipment.findMany({include: { subStats: true }})
-    console.log("Atualizações feitas.", updatedEquipment)
+    console.log("Atualizações feitas.", JSON.stringify(updatedEquipment, null, 2))
 }
 
 main()

@@ -2,26 +2,36 @@ using System;
 using System.Collections;
 using UnityEngine;
 
-public class MockCombatService : ICombatService
+public class MockBattleService : IBattleService
 {
     private readonly PlayerData playerData;
 
-    public MockCombatService(PlayerData playerData)
+    public MockBattleService(PlayerData playerData)
     {
         this.playerData = playerData;
     }
 
-    public IEnumerator ReportDefeat(Action<int> onResult)
+    public IEnumerator GetStatus(Action<PlayerData> onResult, Action<ApiError> onError)
+    {
+        yield return new WaitForSeconds(0.5f);
+
+        onResult?.Invoke(playerData);
+    }
+
+    public IEnumerator ReportDefeat(Action onResult, Action<ApiError> onError)
     {
         yield return new WaitForSeconds(0.5f);
 
         int penalty = Mathf.Max(1, Mathf.FloorToInt(playerData.gold * 0.05f));
         int newGold = Mathf.Max(0, playerData.gold - penalty);
 
-        onResult?.Invoke(newGold); 
+        //ouro existe apenas no backend, jogo não vai receber esse valor
+        playerData.gold = newGold;
+
+        onResult?.Invoke(); 
     }
 
-    public IEnumerator ReportVictory(Action<RewardResult> onResult, int enemyLevel, bool isBoss)
+    public IEnumerator ReportVictory(int enemyLevel, bool isBoss, Action<RewardResult> onResult, Action<ApiError> onError)
     {
         yield return new WaitForSeconds(0.5f);
 
@@ -56,7 +66,6 @@ public class MockCombatService : ICombatService
             equipmentReward.id = Guid.NewGuid().ToString();
         }
 
-        int newGold = playerData.gold + goldEarned;
         int newExperience = playerData.xp + experienceEarned;
         int newLevel = playerData.level;
 
@@ -68,12 +77,14 @@ public class MockCombatService : ICombatService
             newExperience -= xpForNextLevel;
         }
 
+        //recompensas que são apenas aplicadas no backend
+        playerData.gold += goldEarned;
+        if (hasEquipmentReward) playerData.equipments.Add(equipmentReward);
+
         onResult?.Invoke(new RewardResult
         {
-            Level = newLevel,
-            Gold = newGold,
-            Experience = newExperience,
-            Equipment = equipmentReward
+            level = newLevel,
+            xp = newExperience,
         });
     }
 }

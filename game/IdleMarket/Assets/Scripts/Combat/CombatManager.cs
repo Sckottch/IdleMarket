@@ -86,6 +86,8 @@ public class CombatManager : SingletonMonoBehaviour<CombatManager>
 
     private IEnumerator SetupWaveRoutine(Action onSetupEnd)
     {
+        yield return GameManager.Instance.RefreshPlayerData(null);
+
         player.Initialize(GameManager.Instance.PlayerData);
 
         SelectEnemyColor();

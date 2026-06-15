@@ -7,6 +7,7 @@
 ## Mapa do Projeto
 
 [[Arquitetura e Fluxo de Dados]]
+[[Integração API]]
 [[Documentação Frontend]]
 [[Documentação Backend]]
 [[Documentação Jogo]]

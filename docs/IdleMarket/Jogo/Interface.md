@@ -34,13 +34,12 @@ Decisão central: o que cada lado desenha. Tudo que é **estado persistente** do
 
 ### Contrato de dados do jogo
 
-O jogo (Unity) tem **três canais de entrada** e nada mais:
+O jogo (Unity) tem **dois pontos de entrada** e nada mais (contrato completo em [[Integração API]]):
 
-- **Carga inicial** (no boot/login): `{ username, level, xp, equipados }`. Retoma o progresso salvo — sem isso o jogo começaria do zero a cada login. _(Fase 1: o mock cria isso no `Awake`. Fase 3: login → `GET /status`.)_
-- **Resposta de vitória** (`/victory`): `{ level, xp }`. Atualiza a barra de XP e o rebuild de stats.
-- **Snapshot de equipados**: as (até) 4 peças equipadas, recebidas quando o React altera o equipamento (ver [[Equipamentos]]).
+- **`/status` (boot + refresh):** `{ username, level, xp, equipados }`. A **mesma rota** serve para os dois usos — a primeira chamada é a **carga inicial** (retoma o progresso salvo), as seguintes são **refresh**, puxado a cada `WaveStart` logo antes do `player.Initialize`. É por aqui que entra o **snapshot de equipados** — o jogo **puxa** o estado, não recebe um push do React (ver [[Equipamentos]]).
+- **Resposta de vitória (`/victory`):** `{ level, xp }`. Atualiza a barra de XP e o rebuild de stats. Não carrega ouro nem equipamento.
 
-A carga inicial é o snapshot completo; os outros dois são atualizações incrementais das suas duas metades (progressão e equipamento).
+> **Nota Fase 3 — Etapa 2:** o snapshot de equipados deixou de ser um push do React e passou a ser **puxado** via `/status` a cada wave (motivos anti-trapaça em [[Integração API]]). Na Fase 1 a carga inicial era um mock criado localmente.
 
 Ouro, inventário completo e log de drops **não trafegam pro jogo** — são responsabilidade do backend/React.
 

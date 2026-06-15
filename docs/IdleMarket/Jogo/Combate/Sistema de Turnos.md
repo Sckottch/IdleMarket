@@ -16,7 +16,7 @@ O fluxo é orquestrado por uma **State Machine**: o combate está sempre em exat
 - **Dano em `float`:** simplifica os cálculos percentuais (crítico, bônus de status) e o fluxo geral. A vida dos personagens também é float.
 - **Níveis dos inimigos travados no início do confronto:** o nível do jogador é salvo uma vez no começo (`confrontationLevel`) e usado para gerar todos os inimigos. Subir de nível no meio do confronto não altera os inimigos já planejados.
 - **Geração no início de cada wave:** o inimigo e o loadout do jogador são definidos quando a wave começa, não antes. Evita salvar dados que podem ser gerados na hora e impede o bug de o jogador trocar de equipamento no meio de um ataque.
-- **Gancho de recompensas no estado `WaveWon`:** na fase 1 é mock; na fase 3 é o ponto onde o combate "pausa" esperando a resposta do Backend (rota `/victory`) antes de seguir para a próxima wave.
+- **Gancho de recompensas no estado `WaveWon`:** o ponto onde o combate dispara `ReportVictory` (`POST /api/battle/victory`) e segue. Na Fase 1 era mock; na **Fase 3 — Etapa 2** passou a chamar o backend real (ver [[Integração API]]). A state machine **sempre avança** — o `onComplete` dispara tanto no sucesso quanto no erro, pra um POST que falha nunca congelar o combate (ver [Tratamento de Erro](#tratamento-de-erro-e-criticidade)).
 
 ---
 
@@ -52,9 +52,9 @@ inimigo morreu   │        │  jogador morreu
 
 | Estado     | Responsabilidade                                          | Transiciona para                               |
 | ---------- | --------------------------------------------------------- | ---------------------------------------------- |
-| WaveStart  | Gera inimigo + loadout do player, reseta HP, define ordem; mostra o aviso de wave e segura ~0,5s antes do Battle (deixou de ser instantâneo) | Battle                                         |
+| WaveStart  | Puxa `/status` (`RefreshPlayerData`) antes do `player.Initialize`; gera inimigo + loadout do player, reseta HP, define ordem; mostra o aviso de wave e segura ~0,5s antes do Battle (deixou de ser instantâneo) | Battle                                         |
 | Battle     | Troca de golpes em tempo real (coroutine)                 | WaveWon (inimigo morre) / Defeat (player morre)|
-| WaveWon    | Espera recompensas; checa se há mais waves                | WaveStart (há waves) / Victory (era a wave 5)  |
+| WaveWon    | Dispara `ReportVictory` (`/victory`); checa se há mais waves (avança no sucesso **ou** no erro) | WaveStart (há waves) / Victory (era a wave 5)  |
 | Defeat     | Aplica penalidade de -5% de ouro                          | WaveStart (reinicia wave 1)                    |
 | Victory    | Recompensas finais; encerra o confronto                   | — (sai do combate)                             |
 
@@ -80,12 +80,45 @@ inimigo morreu   │        │  jogador morreu
 
 ---
 
-## Recompensas (preparação para a Fase 3)
+## Recompensas e Integração (Fase 3 — Etapa 2)
 
 - A cada inimigo derrotado, o jogador ganha XP, ouro e (possivelmente) um equipamento. As fórmulas estão no [[Recompensas]].
-- Na **fase 1** isso é mock; na **fase 3** o Backend assume o cálculo e a persistência.
-- O estado **WaveWon** é o ponto de espera dessas recompensas entre waves.
-- **Level-up no meio do confronto:** os atributos do jogador atualizam imediatamente, mas o nível dos inimigos **não muda** (já travado no início).
+- Na **Fase 1** isso era mock; na **Fase 3 — Etapa 2** o Backend assumiu o cálculo e a persistência. O `WaveWon` chama `ReportVictory` (`POST /api/battle/victory`) e recebe de volta só `{ level, xp }` (ver [[Integração API]]).
+- O `MockBattleService` continua existindo como toggle (`useMock`): faz o papel do banco internamente e devolve o mesmo `{ level, xp }`, então o `GameManager` é idêntico nos dois modos.
+- **Level-up no meio do confronto:** os atributos do jogador atualizam imediatamente, mas o nível dos inimigos **não muda** (já travado no `confrontationLevel`).
+
+---
+
+## Fluxo de Boot
+
+O combate **não começa mais** num `Start` síncrono. O início passou a ser orquestrado por um boot assíncrono:
+
+- A **`BootScene`** passou a ser usada (estava vazia desde o setup). O `GameManager` (`DontDestroyOnLoad`) vive nela, roda o boot e só então carrega a `GameScene`.
+- **`Boot()` é uma coroutine** que ramifica internamente por `useMock`:
+    - **Mock:** fabrica `PlayerData` + `MockBattleService`, pula o login e pula o `LoadScene`.
+    - **Real:** `Login` → segue.
+    - Os dois caminhos convergem: `GetStatus` → atribui `PlayerData` → _(só no real:_ `LoadScene("GameScene")` + espera o `CombatManager` existir_)_ → `ChangeCombatState(Idle)` **no fim**. Esse é o **ponto único de início do combate**.
+- **`CombatManager.Start` não inicia mais o combate** (é disparado pelo fim do `Boot`) — evita corrida no caminho mock-direto.
+- **Padrão fallback-bootstrap:** há **também** um `GameManager` na `GameScene` com `useMock=true`, pra dar Play direto na `GameScene` e testar sem passar pela `BootScene`. Exige que o guard do singleton seja **"o primeiro vence"** (destrói o recém-chegado), pra o `GameManager` da `BootScene` sobreviver. Recomendado: `GameManager` como **prefab**, sobrescrevendo só o `useMock` por cena, pra não duplicar config.
+- **Build Settings:** a `BootScene` no índice 0; a `GameScene` precisa estar listada.
+
+---
+
+## Tratamento de Erro e Criticidade
+
+O contrato de erro é por **callback duplo** (`onSuccess` + `onError`, ver [[Integração API]]). A mesma chamada pode ter criticidades diferentes conforme o contexto:
+
+- **`GetStatus` no boot = CRÍTICO:** sem `PlayerData` o jogo não começa → aborta/halt. _(Futuro: retry + tela "sem conexão".)_
+- **`GetStatus` no refresh do `WaveStart` = BEST-EFFORT:** o jogo já tem um `PlayerData` válido → na falha, loga e **segue** com o estado atual; **nunca congela**.
+
+**Regra "a state machine sempre avança":** nos wrappers `ReportVictory` / `ReportDefeat` do `GameManager`, o `onComplete` é chamado **tanto no sucesso quanto no erro**, pra um POST que falha nunca congelar a SM (`WaveWon` → próxima wave; `Defeat` → reinício do combate). É seguro porque:
+
+- exatamente **um** callback dispara (sem duplo disparo);
+- a derrota é não-crítica;
+- a vitória **reconcilia no próximo refresh** (`/status` da próxima wave);
+- **não há re-POST**, logo sem processamento duplo.
+
+> Cosmético: a barra de XP não anima numa vitória que falha — reconcilia no próximo evento de progressão.
 
 ---
 
@@ -98,6 +131,8 @@ inimigo morreu   │        │  jogador morreu
 | `ICombatState`      | interface       | Contrato dos estados: `Enter()`, `Tick()`, `Exit()`.        |
 | Estados concretos   | classes         | `WaveStartState`, `BattleState`, `WaveWonState`, `DefeatState`, `VictoryState`. |
 | `CombatCalculator`  | classe estática | Fórmulas de dano. Recebe stats, devolve valores. Não toca em cena nem em estado. |
+
+> O `GameManager` (`DontDestroyOnLoad`) é o dono do boot e dos wrappers de vitória/derrota; ele fala com o backend pela camada de serviços (`IBattleService`). Essa camada e o transporte estão documentados em [[Integração API]].
 
 ### Contrato dos estados
 

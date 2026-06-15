@@ -51,3 +51,27 @@
 - **O quê:** o efeito de shader (aura/brilho) que distinguiria o chefão da wave final foi removido do escopo. O chefão usa o mesmo modelo/cor dos comuns; a distinção fica só no aviso "WAVE FINAL".
 - **Por quê:** o trabalho pra implementar a aura seria grande demais e atrasaria muito o avanço do projeto. Não compensa agora.
 - **Impacto:** [[Interface]] (seção Chefão e nota do `SetupWave`). Sem efeito em stats, fluxo ou contrato de dados.
+
+## Integração Unity ↔ backend: transporte vs domínio (Fase 3 — Etapa 2)
+
+- **O quê:** camada de transporte `ApiClient` (static; `Post<T>`/`Get<T>` sobre `UnityWebRequest`; token JWT como estado ambiente; Newtonsoft centralizado) separada dos serviços de domínio (`AuthService`, `BattleService`).
+- **Por quê:** transporte sabe de HTTP/JSON/token; domínio sabe das operações. Login/victory são operações de domínio, não de transporte.
+- **Impacto:** [[Integração API]]. Comunicação Unity → backend → banco validada ponta a ponta no editor.
+
+## ICombatService → IBattleService + contrato de erro
+
+- **O quê:** interface renomeada para `IBattleService` (agrupa status + victory + defeat, 1:1 com `/api/battle/*`). `onError` (`Action<ApiError>`) em todos os métodos (callback duplo). `RewardResult` → `VictoryResult { level, xp }`. `ReportDefeat` sem gold.
+- **Por quê:** status não é "combate"; o nome bate com o grupo de rotas. Os campos do `VictoryResult` batem com o JSON do backend (Newtonsoft desserializa direto). Ouro é responsabilidade do React.
+- **Impacto:** [[Integração API]], [[Sistema de Turnos]].
+
+## Equipados puxados via /status a cada wave (jogo é receptor)
+
+- **O quê:** o jogo nunca equipa/desequipa; puxa o snapshot de equipados via `/status` a cada `WaveStart` (`RefreshPlayerData`). Não há `IInventoryService` no runtime — o `MockInventoryService` fica só como debug.
+- **Por quê:** equip é React → backend; anti-trapaça (estado autoritativo do servidor, janela `<=` uma wave); trocas no React entram na próxima wave.
+- **Impacto:** [[Integração API]], [[Interface]], [[Sistema de Turnos]].
+
+## Boot pela BootScene + a state machine sempre avança
+
+- **O quê:** o `GameManager` (`DontDestroyOnLoad`) vive na `BootScene`, roda `Boot()` assíncrono e só então carrega a `GameScene`; o combate só inicia no fim do boot (`CombatManager.Start` não inicia mais). Mocks mantidos como toggle (`useMock`). Nos wrappers de victory/defeat, o `onComplete` dispara no sucesso **e** no erro.
+- **Por quê:** ponto único de início do combate (sem corrida no caminho mock-direto); um POST que falha nunca congela a SM (derrota é não-crítica; vitória reconcilia no próximo refresh; sem re-POST).
+- **Impacto:** [[Sistema de Turnos]] (Fluxo de Boot, Tratamento de Erro), [[Integração API]].

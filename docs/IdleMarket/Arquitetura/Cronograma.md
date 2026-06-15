@@ -52,19 +52,19 @@ O projeto é dividido em **5 fases sequenciais**, onde cada fase precisa estar f
 
 ### Entregas
 
-- [ ] Projeto Node.js configurado (TypeScript + Fastify/Express + Prisma)
-- [ ] Documentação detalhada das rotas desta fase (`Backend_Jogo.md`)
-- [ ] Autenticação (`/api/auth`): registro e login com JWT
-- [ ] Rota de status do jogador (`/api/battle/status`)
-- [ ] Rota de vitória com gerador de loot (`/api/battle/victory`)
-- [ ] Rota de derrota com penalidade de ouro (`/api/battle/defeat`)
-- [ ] Rotas de inventário e equipamentos (`/api/inventory`)
-- [ ] Unity integrada: mocks removidos, todas as chamadas apontando para a API real
-- [ ] Testes do fluxo completo: login → combate → drops → equip
+- [x] Projeto Node.js configurado (TypeScript + Fastify/Express + Prisma)
+- [x] Documentação detalhada da integração desta fase (ver [[Integração API]])
+- [x] Autenticação (`/api/auth`): registro e login com JWT
+- [x] Rota de status do jogador (`/api/battle/status`)
+- [x] Rota de vitória com gerador de loot (`/api/battle/victory`)
+- [x] Rota de derrota com penalidade de ouro (`/api/battle/defeat`)
+- [x] Rotas de inventário e equipamentos (`/api/inventory`)
+- [x] Unity integrada à API real (mocks **mantidos** como toggle `useMock` para teste offline — ver [[Integração API]])
+- [x] Testes do fluxo no editor: login → combate → drops (persistidos no banco). _Equip é do React (o jogo é receptor), validado na Fase 4/5._
 
 ### Critério de conclusão
 
-> O jogo roda conectado ao Backend real. Login, progressão, drops e equipamentos persistem no banco de dados corretamente.
+> O jogo roda conectado ao Backend real. Login, progressão e drops persistem no banco de dados corretamente. **Integração Unity ↔ API ↔ banco validada ponta a ponta no editor.** Itens adiados (tela de login de verdade, CORS, retry/UX de falha) estão em _Fora de escopo / próximos passos_ em [[Integração API]].
 
 ---
 
@@ -115,6 +115,6 @@ O projeto é dividido em **5 fases sequenciais**, onde cada fase precisa estar f
 | ---- | ---------------- | ----------- | ----------- |
 | 1    | Unity (Jogo)     | —           | ✅ Concluída |
 | 2    | Banco de Dados   | —           | ✅ Concluída |
-| 3    | Backend + Unity  | Fases 1 e 2 | 🔲 Pendente |
+| 3    | Backend + Unity  | Fases 1 e 2 | ✅ Concluída |
 | 4    | Frontend         | —           | 🔲 Pendente |
 | 5    | Integração Final | Fases 3 e 4 | 🔲 Pendente |

@@ -25,7 +25,7 @@ As rotas da API atenderão tanto às requisições do jogo (Unity) quanto às a�
         
     - _Gerador de Loot (RNG):_ Caso a matemática decida que houve drop de item (ou se for o Chefão da wave 5), o backend gera o equipamento, calcula a raridade, sorteia os status/sub-status dentro dos _ranges_ da tabela da Unity, calcula o **Rating (1-100)** e salva na tabela `Equipamento`.
         
-    - _Resposta:_ Retorna um JSON para a Unity contendo o que o jogador ganhou para ser exibido na tela.
+    - _Resposta:_ Retorna para a Unity apenas `{ level, xp }` (o DTO `VictoryResult`). O ouro e o equipamento dropado são **persistidos no banco** mas não trafegam pro jogo — são exibidos pelo React. (Ver [[Integração API]].)
         
 - `POST /defeat`: Chamada ao perder o combate. O backend busca o ouro atual do jogador, subtrai **5%**, atualiza no Postgres e retorna o novo valor.
     

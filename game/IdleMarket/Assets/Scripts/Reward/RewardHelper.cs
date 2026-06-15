@@ -23,16 +23,12 @@ public static class RewardHelper
 
 public struct RewardResult
 {
-    public int Level;
-    public int Gold;
-    public int Experience;
-    public Equipment Equipment;
+    public int level;
+    public int xp;
 
-    public RewardResult(int level, int gold, int experience, Equipment equipment)
+    public RewardResult(int level, int experience)
     {
-        Level = level;
-        Gold = gold;
-        Experience = experience;
-        Equipment = equipment;
+        this.level = level;
+        xp = experience;
     }
 }

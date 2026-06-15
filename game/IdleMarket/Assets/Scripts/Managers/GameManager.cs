@@ -1,13 +1,18 @@
 using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : SingletonMonoBehaviour<GameManager>
 {
     [SerializeField] private bool useMock = true;
 
+    [SerializeField] private string testUsername;
+    [SerializeField] private string testPassword;
+
     public PlayerData PlayerData { get; private set; }
 
-    public ICombatService CombatService { get; private set; }
+    public IBattleService BattleService { get; private set; }
     public MockInventoryService InventoryService { get; private set; }
 
     #region Events
@@ -21,10 +26,18 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         base.Awake();
 
         DontDestroyOnLoad(gameObject);
+    }
 
-        if(useMock)
+    private void Start()
+    {
+        StartCoroutine(Boot());
+    }
+
+    private IEnumerator Boot()
+    {
+        if (useMock)
         {
-            PlayerData = new PlayerData
+            PlayerData mockData = new()
             {
                 id = Guid.NewGuid().ToString(),
                 username = "TestPlayer",
@@ -33,51 +46,85 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
                 xp = 0
             };
 
-            CombatService = new MockCombatService(PlayerData);
-            InventoryService = new MockInventoryService(PlayerData);
+            BattleService = new MockBattleService(mockData);
+            InventoryService = new MockInventoryService(mockData);
         }
         else
         {
-            //CombatService = new CombatService();
+            BattleService = new BattleService();
+
+            bool loginOk = false;
+
+            yield return AuthService.Login(testUsername, testPassword, () => loginOk = true, error =>
+            {
+                Debug.LogError($"Boot: login falhou ({error.Code}): {error.Message}");
+            });
+            if (!loginOk) yield break;
         }
+
+        bool statusOk = true;
+
+        yield return RefreshPlayerData(() => statusOk = false);
+
+        if (!statusOk) yield break;
+
+        if (!useMock)
+        {
+            SceneManager.LoadScene("GameScene");
+            yield return null;
+            while (CombatManager.Instance == null) yield return null;
+        }
+
+        CombatManager.Instance.ChangeCombatState(CombatState.Idle);
     }
 
-    private void Start()
+    public IEnumerator RefreshPlayerData(Action onError)
     {
-        CombatManager.Instance.ChangeCombatState(CombatState.Idle);
+        yield return BattleService.GetStatus(data =>
+        {
+            PlayerData = data;
+        }, error =>
+        {
+            Debug.LogError($"Refresh: status falhou ({error.Code}): {error.Message}");
+            onError?.Invoke();
+        });
     }
 
     public void ReportDefeat(Action onComplete)
     {
-        StartCoroutine(CombatService.ReportDefeat(newGold =>
+        StartCoroutine(BattleService.ReportDefeat(() =>
         {
-            PlayerData.gold = newGold;
-
+            //Log de gold para conferir durante o mock, sempre retorna 0 no real
             Debug.Log($"Player's new gold amount after defeat: {PlayerData.gold}");
 
+            onComplete?.Invoke();
+        }, 
+        error =>
+        {
+            Debug.LogError($"Defeat: derrota falhou ({error.Code}): {error.Message}");
             onComplete?.Invoke();
         }));
     }
 
     public void ReportVictory(int enemyLevel, bool isBoss, Action onComplete)
     {
-        StartCoroutine(CombatService.ReportVictory(result =>
+        StartCoroutine(BattleService.ReportVictory(enemyLevel, isBoss, result =>
         {
-            PlayerData.level = result.Level;
-            PlayerData.gold = result.Gold;
-            PlayerData.xp = result.Experience;
-            if (result.Equipment != null)
-            {
-                PlayerData.equipments.Add(result.Equipment);
-            }
+            PlayerData.level = result.level;
+            PlayerData.xp = result.xp;
 
+            //Log de gold para conferir durante o mock, sempre retorna 0 no real
             Debug.Log($"Player's new gold amount after victory: {PlayerData.gold}");
             Debug.Log($"Player's new XP amount after victory: {PlayerData.xp}");
 
             OnProgressionChanged?.Invoke();
 
             onComplete?.Invoke();  
-        }, 
-        enemyLevel, isBoss));
+        },
+        error =>
+        {
+            Debug.LogError($"Victory: vitória falhou ({error.Code}): {error.Message}");
+            onComplete?.Invoke();
+        }));
     }
 }

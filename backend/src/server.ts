@@ -1,20 +1,19 @@
 import Fastify from "fastify"
 import fastifyJwt from "@fastify/jwt"
 import { authRoutes } from "./routes/auth.js"
-import { prisma } from "./lib/prisma.js"
+import { battleRoutes } from "./routes/battle.js"
+import { inventoryRoute } from "./routes/inventory.js"
 
 const app = Fastify({ logger: true })
 
 app.register(fastifyJwt, { secret: process.env.JWT_SECRET! })
-app.register(authRoutes, { prefix: "/auth"})
+
+app.register(authRoutes, { prefix: "/api/auth"})
+app.register(battleRoutes, { prefix: "/api/battle"})
+app.register(inventoryRoute, { prefix: "/api/inventory"})
 
 app.get("/health", async () => {
     return { status: "ok" }
-})
-
-app.get("/users/count", async () => {
-    const count = await prisma.user.count()
-    return { users: count }
 })
 
 const start = async () => {

@@ -16,7 +16,7 @@ export async function inventoryRoute(app: FastifyInstance) {
         }
 
         const equipment = await prisma.equipment.findFirst({
-             where: { userId: user.id, id: equipmentId }
+            where: { userId: user.id, id: equipmentId }
         })
 
         if (!equipment){
@@ -92,5 +92,22 @@ export async function inventoryRoute(app: FastifyInstance) {
         })
 
         return updatedEquippeds
+    })
+
+    app.delete("/:id", { onRequest: authenticate }, async (request, reply) => {
+        const { id } = request.params as { id: string }
+        const { sub } = request.user as { sub: string }
+
+        const equipment = await prisma.equipment.findFirst({
+            where: { userId: sub, id: id }
+        })
+
+        if (!equipment) {
+            return reply.status(404).send({ error: "Equipamento não encontrado" })
+        }
+
+        await prisma.equipment.delete({ where: { id: equipment.id }})
+
+        return reply.status(204).send()
     })
 }

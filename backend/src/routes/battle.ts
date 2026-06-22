@@ -3,6 +3,7 @@ import { prisma  } from "../lib/prisma.js"
 import { authenticate } from "../lib/auth.js"
 import { getBossRarity, getCommonRarity } from "../game/rewardHelper.js"
 import { generateEquipment } from "../game/equipmentGenerator.js"
+import { canLevelUp, getXpForLevelUp } from "../game/playerHelper.js"
 
 export async function battleRoutes(app:FastifyInstance) {
     app.get("/status", { onRequest: authenticate }, async (request, reply) => {
@@ -137,12 +138,4 @@ export async function battleRoutes(app:FastifyInstance) {
             level: updated.character?.level
         }
     })
-}
-
-function canLevelUp(currentXp: number, currentLevel: number): boolean {
-    return currentXp >= getXpForLevelUp(currentLevel)
-}
-
-function getXpForLevelUp (level: number): number {
-    return 10 * (level * level) + 100 * level
 }

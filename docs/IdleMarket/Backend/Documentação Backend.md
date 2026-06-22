@@ -1,6 +1,6 @@
 ## Visão Geral
 
-Servidor API REST assíncrono construído em Node.js que atua como o motor central da aplicação. É responsável por processar todas as regras de negócio, realizar a persistência de dados via Prisma ORM de forma segura e gerenciar a comunicação em tempo real via WebSockets entre os clientes (Jogo e Web).
+Servidor API REST assíncrono construído em Node.js que atua como o motor central da aplicação. É responsável por processar todas as regras de negócio e realizar a persistência de dados via Prisma ORM de forma segura. A comunicação com os clientes (Jogo e Web) é **REST only** — sem WebSocket; quando o estado muda, o cliente repuxa (ver [[Integração API]] e [[Decisões]]).
 
 **Ambiente de Execução:** Node.js (Vite-node, Fastify ou Express) **Linguagem:** TypeScript (para garantir tipagem idêntica às tabelas do Prisma)
 
@@ -46,3 +46,13 @@ As rotas da API atenderão tanto às requisições do jogo (Unity) quanto às a�
 - `POST /buy`: **Rota Crítica de Transação.** Recebe o `id` do item que o comprador quer.
     
     - _Lógica:_ Abre uma **Transaction (Prisma.$transaction)** para garantir que, se algo falhar no meio, nada mude. O backend checa se o comprador tem ouro. Se sim: reduz o ouro do comprador ➔ adiciona o ouro na conta do vendedor ➔ muda o `usuarioId` do item para o do comprador ➔ seta `estaAVenda = false` e `precoVenda = null`.
+
+## Rotas a implementar na Fase 5 (consumidas pelo Frontend)
+
+O Frontend (React) já chama estes pontos pelos seams da pasta `data/` (ver [[Documentação Frontend]]); hoje eles devolvem fixtures. Estas rotas precisam ser criadas no backend pra plugar o front real:
+
+- `GET /me`: retorna o **status do jogador + inventário completo** num único payload — `{ username, gold, level, xp, xpForNextLevel, inventário[] }`. Diferente de `/api/battle/status` (que serve a Unity e só carrega os **equipados**), o `/me` carrega o inventário inteiro que o Dashboard e o Mercado precisam, incluindo o `xpForNextLevel` pra barra de XP. É a rota por trás do `playerService.getMe`. (Ver [[Integração API]].)
+- `GET /api/inventory` (listar inventário): retorna todos os itens do jogador (equipados, guardados e à venda), pra alimentar o inventário do React de forma independente do `/me`.
+- `POST /api/market/unlist`: recebe o `id` do item anunciado e **cancela o anúncio** (`estaAVenda = false`, `precoVenda = null`), devolvendo o item ao inventário. Complementa o `/sell` — é o que o botão **Cancelar** da aba Vender chama (`marketService.unlist`).
+
+> Também entram na Fase 5 (já mapeadas nos seams do front, mas sem rota ainda): a rota de **deletar item** do inventário (ex.: `DELETE /api/inventory/:id`) — hoje só existem `/equip` e `/unequip`.

@@ -74,14 +74,15 @@ O projeto é dividido em **5 fases sequenciais**, onde cada fase precisa estar f
 
 ### Entregas
 
-- [ ] Projeto React configurado (Vite + TypeScript + Tailwind)
-- [ ] Documentação detalhada das telas (`Frontend_Detalhado.md`)
-- [ ] Tela de autenticação (Login / Cadastro)
-- [ ] Dashboard do jogador (status, slots de equipamento, inventário)
-- [ ] Marketplace — aba Comprar (listagem e filtros)
-- [ ] Marketplace — aba Anunciar (formulário de venda)
-- [ ] Tela do Jogo (layout com painel lateral, WebGL e painel inferior)
-- [ ] Fluxo de equip/unequip via modal funcionando
+- [x] Projeto React configurado (Vite + TypeScript + Tailwind)
+- [x] Documentação detalhada das telas (ver [[Documentação Frontend]] → [[Login-Cadastro]], [[Dashboard]], [[Jogo]], [[Mercado]], [[Componentes]])
+- [x] Tela de autenticação (Login / Cadastro)
+- [x] Dashboard do jogador (status, slots de equipamento, inventário)
+- [x] Marketplace — aba Comprar (listagem e filtros)
+- [x] Marketplace — aba Vender (anúncios ativos + formulário de venda)
+- [x] Tela do Jogo (layout com painel lateral, placeholder WebGL e painel inferior)
+- [x] Fluxo de equip/unequip via modal e via EquipmentManager funcionando
+- [x] Seams assíncronos (`data/`) + PlayerContext prontos para a troca por `fetch` na Fase 5
 
 ### Critério de conclusão
 
@@ -96,11 +97,13 @@ O projeto é dividido em **5 fases sequenciais**, onde cada fase precisa estar f
 ### Entregas
 
 - [ ] Documentação das rotas restantes (`Backend_Market.md`, etc.)
+- [ ] Rotas novas no Backend: `GET /me` (status + inventário completo), `GET /api/inventory` (listar), `POST /api/market/unlist` (cancelar anúncio) e deletar item do inventário (ver [[Documentação Backend]])
 - [ ] Rotas do Marketplace implementadas no Backend (`/api/market`)
-- [ ] Frontend integrado ao Backend: autenticação real com JWT
+- [ ] Trocar os seams da pasta `data/` (fixtures → `fetch`), sem reescrever as telas
+- [ ] Frontend integrado ao Backend: autenticação real com JWT (token guardado/limpo no `authService`)
 - [ ] Frontend integrado ao Backend: inventário e equipamentos reais
 - [ ] Frontend integrado ao Backend: Marketplace com transações reais
-- [ ] Jogo WebGL embutido e comunicando com o Backend dentro da página React
+- [ ] Jogo WebGL embutido e comunicando com o Backend dentro da página React (por último)
 - [ ] Testes do fluxo completo: cadastro → jogo → drops → mercado → compra
 
 ### Critério de conclusão
@@ -116,5 +119,5 @@ O projeto é dividido em **5 fases sequenciais**, onde cada fase precisa estar f
 | 1    | Unity (Jogo)     | —           | ✅ Concluída |
 | 2    | Banco de Dados   | —           | ✅ Concluída |
 | 3    | Backend + Unity  | Fases 1 e 2 | ✅ Concluída |
-| 4    | Frontend         | —           | 🔲 Pendente |
+| 4    | Frontend         | —           | ✅ Concluída |
 | 5    | Integração Final | Fases 3 e 4 | 🔲 Pendente |

@@ -1,48 +1,42 @@
 ## Visão Geral
 
-Interface web construída em React que serve como o hub do jogador fora da Unity. Nela, o usuário poderá gerenciar sua conta, visualizar os atributos do seu personagem, equipar ou desequipar itens e interagir com a economia viva do jogo através do mercado de trocas.
+Interface web construída em React que serve como o hub do jogador fora da Unity. Nela, o usuário gerencia sua conta, visualiza os atributos do personagem, equipa ou desequipa itens e interage com a economia viva do jogo através do mercado de trocas. A **Fase 4** entregou todas as telas funcionando com dados mockados, prontas pra receber dados reais na Fase 5.
 
-**Framework:** React (Vite / TypeScript) 
-**Estilo:** CSS Moderno (Tailwind CSS ou similar, focado em uma interface escura estilo RPG)
+**Framework:** React (Vite / TypeScript)
+**Estilo:** Tailwind CSS, interface escura estilo RPG
+**Navegação:** React Router. Login e Cadastro ficam fora do layout; Dashboard, Jogo e Mercado rodam dentro do `MainLayout` (com a [[Componentes#TopNav|TopNav]]).
 
-## Telas e Fluxos
+## Telas
 
-O sistema será composto por 3 telas principais, acessíveis após o login, tendo uma barra na parte superior para transicionar entre elas:
+Cada tela tem sua doc detalhada (layout, fluxo, elementos):
 
-### 1. Tela de Autenticação(Login/Cadastro)
- - **Comportamento:** Uma tela simples com formulários para alternar entre "Entrar" e "Criar Conta".
-- **Campos:** Usuário e Senha.
-- **Ação:** Envia os dados para o Backend. Se bem-sucedido, armazena o token de sessão e redireciona o usuário para o Jogo.
-- **Cadastro:** possuirá os mesmos campos do login, apenas adicionando um de confirmar senha.
+- [[Login-Cadastro]] — autenticação (Entrar / Criar Conta).
+- [[Dashboard]] — perfil, inventário, equipar/desequipar/deletar.
+- [[Jogo]] — Unity embutido (WebGL), stats e equipados ao redor.
+- [[Mercado]] — abas Comprar e Vender.
+- [[Componentes]] — reutilizáveis (ItemCard, TopNav, EquipmentManager).
 
-### 2. Dashboard do Jogador (Perfil e Inventário)
+## Arquitetura
 
-Esta tela é dividida em duas colunas ou seções principais:
+### Seams assíncronos (`data/`)
 
-- **Painel de Status:** Exibe o nome do usuário, nível atual, barra de experiência e a quantidade de ouro na conta.
-- **Grade de Equipamentos (Slots Ativos):** Mostra o que o personagem está vestindo atualmente (4 slots: Cabeça, Espada, Armadura, Botas).
-- **Inventário (Baú):** Uma grade (grid) exibindo os itens que o jogador possui guardados (respeitando o limite de até 200 itens).
-    - Ao clicar em um item do inventário, abre um modal/painel mostrando seus atributos (Status Principal, Raridade em estrelas e os Sub status).
-    - Se o slot correspondente no corpo estiver vazio, exibe o botão **"Equipar"**. Se o item já estiver equipado, exibe **"Desequipar"**.
-    - Exibe o botão **"Anunciar no Mercado"**.
+Cada ponto que vai falar com o backend na Fase 5 já existe como uma **função assíncrona** na pasta `data/`. Na Fase 4 elas devolvem fixtures; na Fase 5 a implementação troca pra `fetch` — **a assinatura não muda**, então nenhuma tela precisa ser reescrita, e o `loading` já está embutido no contrato `async` desde o dia 1 (ver [[Decisões]]).
 
-### 3. Marketplace
+- **`playerService.getMe()`** → `{ status, inventory }` — status do jogador (incl. `xpForNextLevel`) + inventário completo.
+- **`marketService`** → `getListings`, `buy`, `sell`, `unlist`.
+- **`equipmentService`** → `equipItem`, `unequipItem`, `deleteEquipment`.
+- **`authService`** → `login`, `register`, `logout`.
 
-O mercado é o centro de trocas entre os jogadores e possui duas abas internas:
+### PlayerContext (cache + refresh)
 
-- **Aba: Comprar Itens**
-    - Exibe uma lista com todos os equipamentos que outros usuários colocaram à venda.
-    - Cada card de item mostra a peça, a raridade, o preço em ouro e o botão **"Comprar"**.
-    - Ao clicar em comprar, o sistema valida se o jogador tem ouro suficiente. Se tiver, desconta o valor e move o item para o inventário dele.
-    - Terá opções de filtro avançadas, podendo selecionar peças a partir de seus valores, sub status dela, tipo de peça e preço
-- **Aba: Anunciar Item**
-    - Abre um formulário simples ao selecionar um item do inventário.
-    - O jogador digita o valor em ouro que deseja cobrar e clica em **"Confirmar Venda"**. O item some do inventário local e vai para a lista global de vendas.
+`context/PlayerContext.tsx` é a fonte de verdade do estado do jogador no front. Mantém `status`, `inventory` e `loading`; expõe as ações (`equip`, `unequip`, `deleteItem`, `buyItem`, `sellItem`, `unlistItem`, `logout`) e um **`refresh()`** que repuxa o `getMe` e devolve os dados.
 
-### 4. Jogo
+- Na Fase 4, cada ação chama o seam e **espelha a mudança no cache local** (funções puras de `lib/inventory.ts`: `applyEquip`, `applyUnequip`, etc.).
+- Na Fase 5, o servidor vira a fonte autoritativa: troca-se o apply local pela resposta da API / um `refresh()`.
 
-O jogo rodará integrado diretamente na página web através do player do Unity WebGL. A tela será dividida em três regiões:
+### Libs (lógica pura)
 
-- **Painel Lateral Esquerdo (Faixa):** Exibe de forma fixa os dados estáticos do jogador (Nome, Nível, Barra de Experiência e Ouro). Além de possuir uma área onde mostrará ao jogador os últimos equipamentos obtidos, mostrando valores e sub status de forma simplificada. 
-- **Painel Superior Direito (Destaque):** A janela onde o jogo da Unity roda e os combates acontecem automaticamente.
-- **Painel Inferior (Rodapé):** Exibe visualmente os 4 equipamentos que o personagem está vestindo atualmente (Cabeça, Espada, Armadura, Botas). além de possuir um botão para gerenciar os equipamentos q abrirá uma janela em pop-up onde ele poderá alterar seus equipamentos.
+- **`lib/equipmentFilters.ts`** — o tipo `Filters` e a função pura `filterEquipment` (tipo, status principal, sub-status, rating, raridade, preço). Compartilhada por Dashboard e Mercado.
+- **`lib/characterStats.ts`** — `computeCharacterStats(level, equipados)` calcula os atributos de combate **no front**, replicando a fórmula dos stats-base da Unity (exibição cosmética, não regra cheatável — ver [[Decisões]]).
+- **`lib/inventory.ts`** — ordenações (`sortInventory`, `sortByTypeOrder`) e os `apply*` que espelham as regras do backend no cache.
+- **`lib/equipmentVisuals.ts`** — mapeamentos de ícone e cor de raridade.

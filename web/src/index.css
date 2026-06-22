@@ -1,0 +1,27 @@
+@import "tailwindcss";
+@import "@fontsource/cascadia-code/index.css";
+
+:root {
+    --rarity-tint: 25%;
+
+    --rarity-1-bg: color-mix(in oklab, var(--color-slate-400)  var(--rarity-tint), var(--color-slate-900));
+    --rarity-2-bg: color-mix(in oklab, var(--color-green-400)  var(--rarity-tint), var(--color-slate-900));
+    --rarity-3-bg: color-mix(in oklab, var(--color-blue-400)   var(--rarity-tint), var(--color-slate-900));
+    --rarity-4-bg: color-mix(in oklab, var(--color-violet-400) var(--rarity-tint), var(--color-slate-900));
+    --rarity-5-bg: color-mix(in oklab, var(--color-amber-400)  var(--rarity-tint), var(--color-slate-900));
+
+    --font-cascadia: "Cascadia Code", monospace;
+}
+
+body {
+    font-family: var(--font-cascadia);
+}
+
+@keyframes toast-in {
+    from { opacity: 0; transform: translate(-50%, -8px); }
+    to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.toast-pop {
+    animation: toast-in 150ms ease-out;
+}

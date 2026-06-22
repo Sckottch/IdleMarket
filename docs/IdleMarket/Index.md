@@ -2,7 +2,7 @@
 
 ## Visão Geral
 
-**IdleMarket** é um ecossistema que une um jogo de estilo *Auto Battler* a um *Marketplace* web em tempo real. O foco principal deste projeto é o desenvolvimento de uma arquitetura Full-Stack e a integração segura de dados entre o cliente de jogo e a plataforma web.
+**IdleMarket** é um ecossistema que une um jogo de estilo *Auto Battler* a um *Marketplace* web. O foco principal deste projeto é o desenvolvimento de uma arquitetura Full-Stack e a integração segura de dados entre o cliente de jogo e a plataforma web.
 
 ## Mapa do Projeto
 

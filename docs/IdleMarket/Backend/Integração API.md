@@ -62,6 +62,20 @@ Reconcilia o "Contrato de dados do jogo" do [[Interface]]. O jogo tem dois ponto
 
 Ouro, inventário completo e log de drops **não trafegam pro jogo** — são responsabilidade do backend/React.
 
+## Ponte Unity ↔ React (sem push)
+
+O React e a Unity convivem na mesma página (o jogo embutido via WebGL, ver [[Documentação Frontend]]), mas **o backend nunca empurra dados pro front** — não há WebSocket. A sincronização funciona por **pull**:
+
+- Quando a Unity vence uma wave, ela reporta o `/victory`; o backend **persiste** ouro, XP e o eventual drop no banco **antes** de responder.
+- Só **depois** de persistir, a Unity emite um **evento de vitória** pro React. Esse evento é um **aviso** ("algo mudou no servidor"), **não um dado confiável** — ele não carrega ouro nem o equipamento dropado.
+- O React reage ao aviso **repuxando o estado autoritativo** do backend (`/me` ou `/status`). O que vale é o que o banco devolve, não o que o evento sugeriu.
+
+Esse desenho (persistir → avisar → repuxar) é o motivo de **não precisarmos de WebSocket**: o único momento em que o front precisa atualizar por causa do jogo é logo após uma vitória, e a própria Unity já sabe avisar. (Ver a decisão em [[Decisões]].)
+
+## `/me` (status + inventário pro React)
+
+Enquanto o jogo usa `/status` (que carrega só os **equipados**), o React precisa do **inventário completo** — o Dashboard e o Mercado listam itens guardados e à venda. Por isso a Fase 5 adiciona o **`GET /me`**: `{ username, gold, level, xp, xpForNextLevel, inventário[] }` num payload só. É a rota por trás do `playerService.getMe` e o alvo do repull após o aviso de vitória. (Detalhe em [[Documentação Backend]].)
+
 ### O jogo é receptor de equipados
 
 O jogo é **receptor** do estado de equipados; ele **nunca** chama equip/unequip (isso é React → backend). Não existe `IInventoryService` no runtime; o `MockInventoryService` fica só como ferramenta de debug do modo mock.

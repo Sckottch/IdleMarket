@@ -75,3 +75,21 @@
 - **O quê:** o `GameManager` (`DontDestroyOnLoad`) vive na `BootScene`, roda `Boot()` assíncrono e só então carrega a `GameScene`; o combate só inicia no fim do boot (`CombatManager.Start` não inicia mais). Mocks mantidos como toggle (`useMock`). Nos wrappers de victory/defeat, o `onComplete` dispara no sucesso **e** no erro.
 - **Por quê:** ponto único de início do combate (sem corrida no caminho mock-direto); um POST que falha nunca congela a SM (derrota é não-crítica; vitória reconcilia no próximo refresh; sem re-POST).
 - **Impacto:** [[Sistema de Turnos]] (Fluxo de Boot, Tratamento de Erro), [[Integração API]].
+
+## REST only — sem WebSocket (Fase 4)
+
+- **O quê:** a comunicação entre clientes (Unity, React) e backend é só REST; nada de WebSocket nem "tempo real". Quando o estado muda, o cliente **repuxa** (`/me`, `/status`).
+- **Por quê:** não há necessidade real de tempo real. O único caso candidato — reagir à ação de **outro** jogador no mercado — foi avaliado e dispensado: não compensa a complexidade de manter conexões abertas pra um marketplace que o jogador consulta pontualmente. O caso do próprio jogador (vitória → atualizar) já é resolvido pelo aviso da Unity + repull (ver [[Integração API]]).
+- **Impacto:** [[Documentação Backend]], [[Arquitetura e Fluxo de Dados]], [[Integração API]], [[Index]]. Removida toda menção a WebSocket nos docs.
+
+## Stats de combate calculados no Frontend (Fase 4)
+
+- **O quê:** os atributos do personagem exibidos no React (`computeCharacterStats`, em `lib/characterStats.ts`) são calculados **no front**, replicando a fórmula dos stats-base da Unity — não vêm de uma rota do backend.
+- **Por quê:** exceção **consciente** ao princípio server-authoritative. Os stats-base vivem na Unity (`PlayerStats.asset`); o backend nem os guarda, então não há de onde servi-los sem duplicar a tabela lá também. É **display cosmético, não cheatável** — quem resolve combate de verdade é a Unity/backend, então um valor adulterado no front não dá vantagem nenhuma. Calcular no front evita um chamado de API só pra exibição.
+- **Impacto:** [[Jogo]], [[Documentação Frontend]]. A fórmula precisa ser mantida em sincronia com a da Unity se os stats-base mudarem.
+
+## Seams assíncronos desde o dia 1 (Fase 4)
+
+- **O quê:** todo ponto que vai falar com o backend já existe como função `async` na pasta `data/` (`playerService`, `marketService`, `equipmentService`, `authService`), devolvendo fixtures na Fase 4.
+- **Por quê:** a Fase 5 vira **trocar a implementação por `fetch`**, não reescrever as telas — a assinatura `async` não muda. Como já é assíncrono desde o começo, o estado de `loading` e o tratamento do "ainda não chegou" já estão embutidos no contrato; não há refactor de síncrono→assíncrono na virada.
+- **Impacto:** [[Documentação Frontend]], todas as telas. É o mesmo princípio mock-vs-real da [[Integração API]], aplicado ao front.

@@ -28,7 +28,7 @@ Clicar num card (equipado ou do inventário) abre o `ItemModal`, que mostra o de
 - **Desequipar** — se já está equipado.
 - **Deletar** — com confirmação inline ("Deletar este item permanentemente?", Sim/Cancelar) antes de remover.
 
-As ações chamam `equip` / `unequip` / `deleteItem` do [[Documentação Frontend#PlayerContext|PlayerContext]]. `Esc` fecha o modal.
+As ações chamam `equip` / `unequip` / `deleteItem` do [[Documentação Frontend#PlayerContext|PlayerContext]]. `Esc` fecha o modal. Se a ação falha, a mensagem de erro do backend aparece num **toast** (ver [[Componentes#Toast|Toast]]); no sucesso não há toast — a própria mudança da tela já é o feedback.
 
 ## Desvio da doc original
 

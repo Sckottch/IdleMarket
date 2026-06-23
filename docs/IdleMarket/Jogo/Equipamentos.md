@@ -31,11 +31,11 @@ Os sub status são atributos adicionais do equipamento, com quantidade definida 
 - Podem ser iguais ao status principal da peça
 - Velocidade **não pode** ser sub status
 
-|Tipo|Range de Valor|
-|---|---|
-|Status% (Vida, Ataque ou Defesa)|10-20%|
-|Chance Crítica%|5-15%|
-|Dano Crítico%|10-30%|
+| Tipo                             | Range de Valor |
+| -------------------------------- | -------------- |
+| Status% (Vida, Ataque ou Defesa) | 10-20%         |
+| Chance Crítica%                  | 5-15%          |
+| Dano Crítico%                    | 10-30%         |
 
 ---
 

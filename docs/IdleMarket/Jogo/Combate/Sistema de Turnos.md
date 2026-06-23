@@ -96,11 +96,12 @@ O combate **não começa mais** num `Start` síncrono. O início passou a ser or
 - A **`BootScene`** passou a ser usada (estava vazia desde o setup). O `GameManager` (`DontDestroyOnLoad`) vive nela, roda o boot e só então carrega a `GameScene`.
 - **`Boot()` é uma coroutine** que ramifica internamente por `useMock`:
     - **Mock:** fabrica `PlayerData` + `MockBattleService`, pula o login e pula o `LoadScene`.
-    - **Real:** `Login` → segue.
+    - **Real (WebGL):** em vez de login com user/senha chumbados, emite o sinal **ready** (via `ReactBridge.NotifyReady`) e **espera o token** chegar do React — `WaitUntil` com timeout. O **token é a credencial** (não há login separado no jogo); chega pelo `ReceiveToken` e é guardado no `ApiClient.Token` (estado ambiente já existente). Caminho de erro (timeout): log + abort.
     - Os dois caminhos convergem: `GetStatus` → atribui `PlayerData` → _(só no real:_ `LoadScene("GameScene")` + espera o `CombatManager` existir_)_ → `ChangeCombatState(Idle)` **no fim**. Esse é o **ponto único de início do combate**.
 - **`CombatManager.Start` não inicia mais o combate** (é disparado pelo fim do `Boot`) — evita corrida no caminho mock-direto.
 - **Padrão fallback-bootstrap:** há **também** um `GameManager` na `GameScene` com `useMock=true`, pra dar Play direto na `GameScene` e testar sem passar pela `BootScene`. Exige que o guard do singleton seja **"o primeiro vence"** (destrói o recém-chegado), pra o `GameManager` da `BootScene` sobreviver. Recomendado: `GameManager` como **prefab**, sobrescrevendo só o `useMock` por cena, pra não duplicar config.
 - **Build Settings:** a `BootScene` no índice 0; a `GameScene` precisa estar listada.
+- **Player Settings (WebGL):** canvas base **640×360**, template **Minimal**, **Run In Background** ligado (jogo idle embutido não pode pausar ao perder o foco — as coroutines da ponte não podem congelar) e **compression Disabled** (evita conflito de header no dev server).
 
 ---
 

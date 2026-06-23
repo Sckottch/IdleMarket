@@ -17,7 +17,7 @@ A barra de navegação superior (`TopNav.tsx`), renderizada pelo `MainLayout` em
 
 - **Esquerda:** marca **IdleMarket**.
 - **Centro:** links de navegação **Jogo** e **Mercado** (`NavLink`, destaca o ativo).
-- **Direita:** pílula de **ouro** (lida do [[Documentação Frontend#PlayerContext|PlayerContext]]), ícone do usuário + nome (leva ao [[Dashboard]]) e o botão de **logout**.
+- **Direita:** pílula de **ouro** (lida do [[Documentação Frontend#PlayerContext|PlayerContext]], e âncora do número flutuante de +/- ouro — ver `FloatingNumber`), ícone do usuário + nome (leva ao [[Dashboard]]) e o botão de **logout**.
 - **Logout:** abre um modal de **confirmação** ("Deseja sair da sua conta?"). Confirmando, chama `logout()` do PlayerContext — que limpa o cache via `AuthService.logout()` (token + dados em cache) **e** zera o estado em memória (status/inventário, pra não vazar dados entre contas) — e navega de volta pro `/login`.
 
 ## EquipmentManager
@@ -27,4 +27,12 @@ Popup de gerenciamento de equipamentos, aberto a partir da [[Jogo|tela do Jogo]]
 - **Tamanho fixo** (`w-280 h-160`, limitado à viewport); cabeçalho e linha de slots ficam fixos, só a grade rola.
 - **Slots por tipo:** uma linha com os 4 tipos na ordem espada→capacete→armadura→botas. O slot mostra o `ItemCard` do item equipado (com um ✕ pra desequipar na hora) ou um `EmptySlot` (placeholder tracejado com o ícone do tipo) quando vazio. Clicar num slot seleciona aquele tipo.
 - **Grade filtrada por tipo:** abaixo dos slots, os itens do inventário **do tipo selecionado** que ainda não estão equipados, ordenados por `sortInventory`. Clicar num item o equipa.
-- Equip/unequip chamam o PlayerContext. `Esc` ou clique fora fecham.
+- Equip/unequip chamam o PlayerContext. `Esc` ou clique fora fecham. Erros sobem por `onError` pra tela do [[Jogo]] mostrar o toast.
+
+## Toast
+
+Aviso flutuante temporário (`Toast.tsx` + hook `useToast`), reusado no [[Mercado]], [[Dashboard]] e [[Jogo]]. Aparece no topo, fica ~2s e some sozinho. Tem variante de **sucesso** (verde) e **erro** (vermelho); o hook guarda a mensagem e cuida do auto-dismiss, o componente só desenha. O grosso do uso é **feedback de erro**, com a mensagem que o backend mandou (o `api` lança em respostas de erro — ver [[Documentação Frontend]]).
+
+## FloatingNumber
+
+Número que aparece e some sozinho (~1s), usado nos feedbacks da [[Jogo|tela do Jogo]]: **+XP** sobre a barra de XP e **+/- ouro** no contador da TopNav. Verde pra positivo, vermelho pra negativo; o pai posiciona via `className`. O caso do ouro cruza componentes (Game → TopNav) por um contexto leve (`GoldFxContext`).

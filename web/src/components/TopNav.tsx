@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { NavLink, Link, useNavigate } from "react-router";
 import { usePlayer } from "../context/PlayerContext";
+import { useGoldFx } from "../context/GoldFxContext";
+import FloatingNumber from "./FloatingNumber";
 import UserIcon from "../assets/icons/userIcons/userIcon.png";
 import LogoutIcon from "../assets/icons/ui/logout.svg";
 
@@ -11,6 +13,7 @@ const navLinkClass = ({ isActive }: { isActive: boolean }) =>
 
 function TopNav() {
   const { status, logout } = usePlayer();
+  const { goldFx } = useGoldFx();
   const navigate = useNavigate();
   const [confirming, setConfirming] = useState(false);
 
@@ -30,7 +33,10 @@ function TopNav() {
       </nav>
 
       <div className="flex items-center gap-4">
-        <span className="rounded-md bg-slate-100/50 px-3 py-1 text-amber-400">{status?.gold ?? 0} ouro</span>
+        <span className="relative rounded-md bg-slate-100/50 px-3 py-1 text-amber-400">
+          {status?.gold ?? 0} ouro
+          <FloatingNumber value={goldFx} className="left-1/2 top-full mt-1 -translate-x-1/2" />
+        </span>
         <Link to="/dashboard" className="flex items-center gap-2 transition-colors hover:text-fuchsia-400">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700 overflow-hidden">
             <img

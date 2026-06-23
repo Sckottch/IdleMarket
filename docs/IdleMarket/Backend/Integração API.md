@@ -1,6 +1,6 @@
 # Integração com a API (Unity ↔ Backend)
 
-> Contrato de integração entre o jogo (Unity) e o backend (Fastify + Postgres): camada de transporte, autenticação, contrato dos serviços de domínio, princípio mock vs real e os canais de dados. Marca o fechamento da **Fase 3 — Etapa 2**: a comunicação Unity → backend → banco foi validada ponta a ponta no editor.
+> Contrato de integração entre o jogo (Unity) e o backend (Fastify + Postgres): camada de transporte, autenticação, contrato dos serviços de domínio, princípio mock vs real e os canais de dados. Marca o fechamento da **Fase 3 — Etapa 2** (comunicação Unity → backend → banco validada ponta a ponta no editor) e, na **Fase 5**, a **ponte Unity↔React** e o **embed WebGL** que fecharam a integração full-stack.
 >
 > O **fluxo de boot**, a **máquina de estados** e o **tratamento de erro** moram no [[Sistema de Turnos]]. Os atributos e fórmulas no [[Combate]]; o contrato visual no [[Interface]].
 
@@ -72,9 +72,18 @@ O React e a Unity convivem na mesma página (o jogo embutido via WebGL, ver [[Do
 
 Esse desenho (persistir → avisar → repuxar) é o motivo de **não precisarmos de WebSocket**: o único momento em que o front precisa atualizar por causa do jogo é logo após uma vitória, e a própria Unity já sabe avisar. (Ver a decisão em [[Decisões]].)
 
+### ReactBridge (lado Unity)
+
+O `ReactBridge` é um `SingletonMonoBehaviour` com `DontDestroyOnLoad`, vivendo na `BootScene`. É o ponto de contato com o React:
+
+- **`ReceiveToken`** — chamado pelo React via `SendMessage`; **repassa o token pro `GameManager`**, sem lógica de boot própria (só entrega).
+- **`NotifyReady` / `NotifyVictory` / `NotifyDefeat`** — disparam os `CustomEvent` `unity:ready` / `unity:victory` / `unity:defeat` no `window`, via `.jslib`, atrás de `#if UNITY_WEBGL && !UNITY_EDITOR` (no editor não há `window`).
+
+O lado React (escutar os eventos, mandar o token, repuxar no victory/defeat) está em [[Jogo]].
+
 ## `/me` (status + inventário pro React)
 
-Enquanto o jogo usa `/status` (que carrega só os **equipados**), o React precisa do **inventário completo** — o Dashboard e o Mercado listam itens guardados e à venda. Por isso a Fase 5 adiciona o **`GET /me`**: `{ username, gold, level, xp, xpForNextLevel, inventário[] }` num payload só. É a rota por trás do `playerService.getMe` e o alvo do repull após o aviso de vitória. (Detalhe em [[Documentação Backend]].)
+Enquanto o jogo usa `/status` (que carrega só os **equipados**), o React precisa do **inventário completo** — o Dashboard e o Mercado listam itens guardados e à venda. Por isso a Fase 5 trouxe o **`GET /api/player/me`**, que devolve o `PlayerDataDTO` (`status` + `inventory`) num payload só. É a rota por trás do `playerService.getMe` e o alvo do repull após o aviso de vitória. (Detalhe em [[Documentação Backend]].)
 
 ### O jogo é receptor de equipados
 

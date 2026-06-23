@@ -1,6 +1,6 @@
 # Jogo
 
-> Tela onde o jogo Unity roda embutido (`Game.tsx`), dentro do `MainLayout`. Hoje a área do jogo é um placeholder; o canvas WebGL real entra na Fase 5. Os dados ao redor (nível, XP, stats, equipados) já vêm do [[Documentação Frontend#PlayerContext|PlayerContext]].
+> Tela onde o jogo Unity roda embutido (`Game.tsx`), dentro do `MainLayout`. Na **Fase 5** o canvas WebGL real entrou (via `react-unity-webgl`) e a ponte Unity↔React foi ligada. Os dados ao redor (nível, XP, stats, equipados) vêm do [[Documentação Frontend#PlayerContext|PlayerContext]].
 
 ## Layout
 
@@ -15,7 +15,7 @@ Faixa fixa à esquerda (`w-80`, sem scroll) com:
 - **Drops:** feed dos últimos equipamentos obtidos, em `DropCard` compacto (ícone + raridade + rating). Limitado aos últimos itens (`MAX_DROPS`).
 
 ### Área do jogo (centro)
-Placeholder 16:9 (`w-[65vw] aspect-video`) com borda — o "Jogo (WebGL)". Na Fase 5 entra aqui o canvas Unity, escalando por múltiplo inteiro de 640×360 pra ficar pixel-perfect.
+O **canvas Unity WebGL**, embutido via `react-unity-webgl` (componente `UnityGame`), numa caixa 16:9 (`w-[65vw] aspect-video`). A caixa usa `overflow-hidden` + `ring` interno e o canvas preenche `100%` dela — assim o jogo fica contido na borda arredondada sem vazar. Enquanto o build não carrega (`isLoaded`), mostra um "Carregando o jogo...".
 
 ### Painel inferior
 Abaixo da área do jogo: os equipados em cards `md` (ordenados espada→capacete→armadura→botas via `sortByTypeOrder`) + botão **Gerenciar**.
@@ -31,6 +31,18 @@ Os atributos vêm de **`computeCharacterStats(level, equipados)`** (`lib/charact
 - A função soma o base por nível com os bônus dos equipados: Vida/Ataque/Defesa são **multiplicativos** (`base * (1 + bônus%)`); Velocidade e Críticos são **aditivos**.
 - É **display cosmético**, não regra cheatável — quem decide combate de verdade é a Unity/backend. Ver a decisão registrada em [[Decisões]].
 
-## Drops — mock na Fase 4
+## Ponte Unity ↔ React
 
-Sem combate rodando na web, o feed de Drops usa uma lista fixa (`FIXTURE_DROPS`) só pra compor o layout. Na Fase 5 ele passa a refletir os drops reais vindos do resultado de vitória (que o backend persiste — ver [[Integração API]]).
+A `Game.tsx` escuta os `CustomEvent` que o jogo dispara no `window` (o lado Unity está em [[Integração API]]):
+
+- **`unity:ready`** — o jogo sinaliza que está pronto pra receber o token. A `Game.tsx` então faz `sendMessage` mandando o token pro `ReactBridge`. Há **guarda anti-envio-duplo**: o token só vai uma vez, combinando o evento `unity:ready` com o `isLoaded` do `react-unity-webgl` (cobre a corrida dos dois chegarem fora de ordem).
+- **`unity:victory`** / **`unity:defeat`** — disparam `refreshVictory()` / `refreshDefeat()` no [[Documentação Frontend#PlayerContext|PlayerContext]] e, com o resultado do diff, os feedbacks visuais abaixo.
+
+> Os listeners ficam montados o tempo todo, mas chamam **sempre a versão atual** das funções do contexto (via `ref`) — pra o `refreshVictory` enxergar o estado real do jogador, não um snapshot velho do boot.
+
+### Feedbacks de vitória/derrota
+
+- **+XP:** número flutuante verde sobre a barra de XP (só quando ganhou XP).
+- **+/- ouro:** número flutuante no contador de ouro da [[Componentes#TopNav|TopNav]] — verde na vitória, vermelho na derrota. Como o contador mora na TopNav (fora da `Game.tsx`), a comunicação passa por um contexto leve só pra isso (`GoldFxContext`), sem variável global nem mexer no DOM.
+- **Drops:** os itens novos entram no feed de Drops do painel esquerdo (`DropCard` compacto). A lista tem **teto de 10** (os mais antigos caem) e é **efêmera** — vive só em estado local, **não persiste**, reseta no reload ou na troca de aba.
+- **Level-up:** silencioso — o número do nível só atualiza sozinho pelo refresh, sem destaque.

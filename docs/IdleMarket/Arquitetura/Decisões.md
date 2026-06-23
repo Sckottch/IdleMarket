@@ -93,3 +93,39 @@
 - **O quê:** todo ponto que vai falar com o backend já existe como função `async` na pasta `data/` (`playerService`, `marketService`, `equipmentService`, `authService`), devolvendo fixtures na Fase 4.
 - **Por quê:** a Fase 5 vira **trocar a implementação por `fetch`**, não reescrever as telas — a assinatura `async` não muda. Como já é assíncrono desde o começo, o estado de `loading` e o tratamento do "ainda não chegou" já estão embutidos no contrato; não há refactor de síncrono→assíncrono na virada.
 - **Impacto:** [[Documentação Frontend]], todas as telas. É o mesmo princípio mock-vs-real da [[Integração API]], aplicado ao front.
+
+## `GET /inventory` descartado (Fase 5)
+
+- **O quê:** a rota separada de listar inventário (`GET /api/inventory`) foi descartada.
+- **Por quê:** redundante com o `/api/player/me` — o front nunca pede o inventário sozinho, sempre junto do status.
+- **Impacto:** [[Documentação Backend]]. Um endpoint a menos pra manter.
+
+## Limite de inventário cortado do escopo (Fase 5)
+
+- **O quê:** não há teto de itens no inventário.
+- **Por quê:** não alimentava a economia — só forçaria deletar lixo. O foco do projeto é integração de sistemas, não balanceamento.
+- **Impacto:** nenhum no contrato de dados.
+
+## Ponte Unity → React: aviso sem dados (Fase 5)
+
+- **O quê:** o evento que a Unity dispara (`unity:victory`/`unity:defeat`) é só um **gatilho** ("tem coisa nova"), não carrega as recompensas.
+- **Por quê:** mantém o jogo sabendo só o **resultado**, não os valores. O React repuxa o `/me` e descobre o que mudou por diff — a fonte de verdade é o banco, não o evento.
+- **Impacto:** [[Integração API]], [[Jogo]].
+
+## Diff de recompensas no client (Fase 5)
+
+- **O quê:** XP/gold/drops exibidos vêm de comparar o `/me` antes/depois da wave (`diffRewards`, `diffDefeat` em `lib/battle.ts`), em vez de o backend devolver os valores.
+- **Por quê:** segue o "o jogo sabe só o necessário" — o backend persiste e o front deriva o delta pro feedback visual. Evita um contrato de recompensa extra.
+- **Impacto:** [[Documentação Frontend]], [[Jogo]], [[Integração API]].
+
+## Autenticação compartilhada: um login só (Fase 5)
+
+- **O quê:** o login acontece **só no React**; o token é entregue ao Unity via `SendMessage`. O jogo WebGL não tem tela de login própria.
+- **Por quê:** o jogo roda embutido na página já autenticada — duplicar login seria atrito à toa. O token é a credencial única.
+- **Impacto:** [[Integração API]], [[Sistema de Turnos]] (o boot espera o token).
+
+## Câmera: stretch fill no canvas embutido (Fase 5)
+
+- **O quê:** o Pixel Perfect Camera ficou em **stretch fill**.
+- **Por quê:** pro jogo preencher o canvas embutido na página, já que o tamanho é ditado pelo container React (não há mais escala por múltiplo inteiro).
+- **Impacto:** [[Interface]], [[Jogo]].

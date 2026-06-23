@@ -9,6 +9,7 @@ import type { Equipment } from "../types/equipment";
 import type { PlayerStatus } from "../types/player";
 import { logout as authLogout } from "../data/authService";
 import { hasToken } from "../data/api";
+import { diffDefeat, diffRewards, type Rewards } from "../lib/battle";
 
 type PlayerContextValue = {
   status: PlayerStatus | null;
@@ -22,6 +23,8 @@ type PlayerContextValue = {
   sellItem: (id: string, price: number) => Promise<void>;
   unlistItem: (id: string) => Promise<void>;
   logout: () => Promise<void>;
+  refreshVictory: () => Promise<Rewards>;
+  refreshDefeat: () => Promise<number>;
 };
 
 const PlayerContext = createContext<PlayerContextValue | null>(null);
@@ -38,6 +41,25 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     return data;
   }
 
+  async function refreshVictory(): Promise<Rewards> {
+    const before: PlayerData = { status: status!, inventory }
+    const after = await getMe()
+
+    setStatus(after.status)
+    setInventory(after.inventory)
+
+    return diffRewards(before, after)
+  }
+
+  async function refreshDefeat(): Promise<number> {
+    const before: PlayerData = { status: status!, inventory }
+    const after = await getMe()
+
+    setStatus(after.status)
+    setInventory(after.inventory)
+
+    return diffDefeat(before, after)
+  }
 
   useEffect(() => {
     async function boot() {
@@ -95,7 +117,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <PlayerContext.Provider value={{ status, inventory, loading, refresh, equip, unequip, deleteItem, buyItem, sellItem, unlistItem, logout }}>
+    <PlayerContext.Provider value={{ status, inventory, loading, refresh, equip, unequip, deleteItem, buyItem, sellItem, unlistItem, logout, refreshVictory, refreshDefeat }}>
       {children}
     </PlayerContext.Provider>
   );

@@ -32,27 +32,38 @@ As rotas da API atenderão tanto às requisições do jogo (Unity) quanto às a�
 
 ### 3. Gerenciamento de Itens (`/api/inventory`)
 
-- `POST /equip`: Recebe o `id` do equipamento. Seta `estaEquipado = true`. _(Regra de negócio: antes de salvar, busca se já existe um item com a mesma propriedade `peca` equipado e muda ele para `false`)_.
+- `POST /equip`: Recebe o `equipmentId`. Seta `isEquipped = true`. _(Regra de negócio: antes de salvar, busca se já existe um item com o mesmo `equipmentType` equipado e muda ele para `false`)_. Responde com os equipados atualizados.
     
-- `POST /unequip`: Recebe o `id` do equipamento e muda `estaEquipado = false`.
+- `POST /unequip`: Recebe o `equipmentId` e muda `isEquipped = false`.
+    
+- `DELETE /:id`: deleta um equipamento. O `id` vem como **route param** (`/api/inventory/:id`), não no corpo. Confere a **posse** antes de apagar (o `userId` do item tem que ser o do requisitante) — barra IDOR (deletar item alheio). O `onDelete: Cascade` do schema apaga os `subStats` junto. Responde `204`.
     
 
 ### 4. Marketplace Global (`/api/market`)
 
-- `GET /list`: Retorna todos os equipamentos do banco onde `estaAVenda == true`. Permite receber parâmetros de query para os filtros avançados do React (filtrar por preço, rating mínimo, sub-status, etc.).
+- `GET /list`: Retorna os equipamentos com `isForSale == true`, **escondendo os do próprio usuário** (`userId != requisitante`) — não faz sentido listar pra alguém o que já é seu. Serve a aba Comprar do React.
     
-- `POST /sell`: Recebe o `id` do item e o `precoVenda`. Altera `estaAVenda = true` e preenche o preço. _(Regra: o item não pode estar equipado para ser vendido)_.
+- `POST /sell`: Recebe `itemId` e `price`. Confere a posse e que o item não está já à venda, então seta `isForSale = true`, `salePrice = price` e `isEquipped = false`. _(Regra: anunciar tira o item de equipado.)_
     
-- `POST /buy`: **Rota Crítica de Transação.** Recebe o `id` do item que o comprador quer.
+- `POST /unlist`: Recebe `itemId`. Confere a posse e cancela o anúncio (`isForSale = false`, `salePrice = null`), devolvendo o item ao inventário. É o que o botão **Cancelar** da aba Vender chama.
     
-    - _Lógica:_ Abre uma **Transaction (Prisma.$transaction)** para garantir que, se algo falhar no meio, nada mude. O backend checa se o comprador tem ouro. Se sim: reduz o ouro do comprador ➔ adiciona o ouro na conta do vendedor ➔ muda o `usuarioId` do item para o do comprador ➔ seta `estaAVenda = false` e `precoVenda = null`.
+- `POST /buy`: **Rota Crítica de Transação.** Recebe o `itemId` que o comprador quer.
+    
+    - _Lógica:_ Abre uma **`prisma.$transaction`** (tudo-ou-nada). Dentro dela valida **no servidor** (não confia no front): o item existe e está à venda, tem `salePrice`, não é auto-compra (`userId` do item != comprador) e o comprador tem ouro. Passando: debita o ouro do comprador ➔ credita o vendedor ➔ transfere o item (`userId` = comprador, `isForSale = false`, `salePrice = null`, `isEquipped = false`).
+    - _Barrado server-side:_ auto-compra e ouro insuficiente são rejeitados aqui, com erro próprio — o front faz só checagem de UX (ver [[Mercado]]).
 
-## Rotas a implementar na Fase 5 (consumidas pelo Frontend)
+## Fase 5 — rotas e infra de integração
 
-O Frontend (React) já chama estes pontos pelos seams da pasta `data/` (ver [[Documentação Frontend]]); hoje eles devolvem fixtures. Estas rotas precisam ser criadas no backend pra plugar o front real:
+Com a Fase 5 os seams do front (pasta `data/`) deixaram de devolver fixtures e passaram a bater nas rotas reais (ver [[Documentação Frontend]]).
 
-- `GET /me`: retorna o **status do jogador + inventário completo** num único payload — `{ username, gold, level, xp, xpForNextLevel, inventário[] }`. Diferente de `/api/battle/status` (que serve a Unity e só carrega os **equipados**), o `/me` carrega o inventário inteiro que o Dashboard e o Mercado precisam, incluindo o `xpForNextLevel` pra barra de XP. É a rota por trás do `playerService.getMe`. (Ver [[Integração API]].)
-- `GET /api/inventory` (listar inventário): retorna todos os itens do jogador (equipados, guardados e à venda), pra alimentar o inventário do React de forma independente do `/me`.
-- `POST /api/market/unlist`: recebe o `id` do item anunciado e **cancela o anúncio** (`estaAVenda = false`, `precoVenda = null`), devolvendo o item ao inventário. Complementa o `/sell` — é o que o botão **Cancelar** da aba Vender chama (`marketService.unlist`).
+### Player (`/api/player`)
 
-> Também entram na Fase 5 (já mapeadas nos seams do front, mas sem rota ainda): a rota de **deletar item** do inventário (ex.: `DELETE /api/inventory/:id`) — hoje só existem `/equip` e `/unequip`.
+- `GET /me`: retorna o **`PlayerDataDTO`** — `status` (`username`, `gold`, `level`, `xp`, `xpForNextLevel`) + o **inventário completo** (`inventory`), cada item com seus `subStats`. Diferente de `/api/battle/status` (que serve a Unity e carrega só os **equipados**), o `/me` traz tudo que o Dashboard e o Mercado precisam. O `xpForNextLevel` vem do `getXpForLevelUp`, **extraído pra um helper compartilhado** (`game/playerHelper`) e reusado aqui — a mesma fórmula que decide o level-up no fluxo de batalha. É a rota por trás do `playerService.getMe`. (Ver [[Integração API]].)
+
+### DTOs (`DTOs/`)
+
+O formato enviado ao front é desacoplado do banco por DTOs centralizados (`DTOs/playerDTO`: `PlayerDataDTO`, `EquipmentDTO`, `SubStatDTO`). O DTO expõe **só o necessário** — `userId`, `passwordHash` e afins nunca trafegam — e mantém o contrato do front estável mesmo que o schema do Prisma mude.
+
+### CORS (`@fastify/cors`)
+
+Registrado **antes** das rotas (origem do dev: `http://localhost:5173`). O `methods` é declarado **explicitamente** incluindo `DELETE`: o default do plugin cobre só `GET`/`HEAD`/`POST`, então sem declarar, o preflight do `DELETE /api/inventory/:id` seria barrado.

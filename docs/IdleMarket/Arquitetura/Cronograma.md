@@ -96,15 +96,15 @@ O projeto é dividido em **5 fases sequenciais**, onde cada fase precisa estar f
 
 ### Entregas
 
-- [ ] Documentação das rotas restantes (`Backend_Market.md`, etc.)
-- [ ] Rotas novas no Backend: `GET /me` (status + inventário completo), `GET /api/inventory` (listar), `POST /api/market/unlist` (cancelar anúncio) e deletar item do inventário (ver [[Documentação Backend]])
-- [ ] Rotas do Marketplace implementadas no Backend (`/api/market`)
-- [ ] Trocar os seams da pasta `data/` (fixtures → `fetch`), sem reescrever as telas
-- [ ] Frontend integrado ao Backend: autenticação real com JWT (token guardado/limpo no `authService`)
-- [ ] Frontend integrado ao Backend: inventário e equipamentos reais
-- [ ] Frontend integrado ao Backend: Marketplace com transações reais
-- [ ] Jogo WebGL embutido e comunicando com o Backend dentro da página React (por último)
-- [ ] Testes do fluxo completo: cadastro → jogo → drops → mercado → compra
+- [x] Documentação da integração da Fase 5 (rotas, ponte Unity↔React, embed WebGL) atualizada no vault
+- [x] Rotas novas no Backend: `GET /api/player/me` (status + inventário completo), `POST /api/market/unlist` (cancelar anúncio) e `DELETE /api/inventory/:id` (deletar item). `GET /inventory` foi descartado (ver [[Decisões]])
+- [x] Rotas do Marketplace implementadas no Backend (`/api/market`: list, buy, sell, unlist)
+- [x] Trocar os seams da pasta `data/` (fixtures → `fetch`), sem reescrever as telas
+- [x] Frontend integrado ao Backend: autenticação real com JWT (token guardado/limpo no `api`/`authService`)
+- [x] Frontend integrado ao Backend: inventário e equipamentos reais
+- [x] Frontend integrado ao Backend: Marketplace com transações reais
+- [x] Jogo WebGL embutido e comunicando com o Backend dentro da página React
+- [x] Testes do fluxo completo: cadastro → jogo → drops → mercado → compra
 
 ### Critério de conclusão
 
@@ -120,4 +120,4 @@ O projeto é dividido em **5 fases sequenciais**, onde cada fase precisa estar f
 | 2    | Banco de Dados   | —           | ✅ Concluída |
 | 3    | Backend + Unity  | Fases 1 e 2 | ✅ Concluída |
 | 4    | Frontend         | —           | ✅ Concluída |
-| 5    | Integração Final | Fases 3 e 4 | 🔲 Pendente |
+| 5    | Integração Final | Fases 3 e 4 | ✅ Concluída |

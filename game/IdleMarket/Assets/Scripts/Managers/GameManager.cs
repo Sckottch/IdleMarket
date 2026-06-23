@@ -7,8 +7,10 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
 {
     [SerializeField] private bool useMock = true;
 
-    [SerializeField] private string testUsername;
-    [SerializeField] private string testPassword;
+    //[SerializeField] private string testUsername;
+    //[SerializeField] private string testPassword;
+
+    private string receivedToken;
 
     public PlayerData PlayerData { get; private set; }
 
@@ -53,13 +55,25 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         {
             BattleService = new BattleService();
 
-            bool loginOk = false;
+            ReactBridge.Instance.OnReadyConfirmed();
 
-            yield return AuthService.Login(testUsername, testPassword, () => loginOk = true, error =>
+            float elapsed = 0f;
+            const float timeout = 10f;
+
+            while (receivedToken == null && elapsed < timeout)
             {
-                Debug.LogError($"Boot: login falhou ({error.Code}): {error.Message}");
-            });
-            if (!loginOk) yield break;
+                elapsed += Time.deltaTime;
+                yield return null;
+            }
+
+            if (receivedToken == null)
+            {
+                Debug.LogError("Boot: token não chegou no tempo esperado");
+
+                yield break;
+            }
+
+            ApiClient.Token = receivedToken;
         }
 
         bool statusOk = true;
@@ -76,6 +90,11 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         }
 
         CombatManager.Instance.ChangeCombatState(CombatState.Idle);
+    }
+
+    public void DeliverToken(string token)
+    {
+        receivedToken = token;
     }
 
     public IEnumerator RefreshPlayerData(Action onError)
@@ -96,6 +115,8 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
         {
             //Log de gold para conferir durante o mock, sempre retorna 0 no real
             Debug.Log($"Player's new gold amount after defeat: {PlayerData.gold}");
+
+            ReactBridge.Instance.OnDefeatConfirmed();
 
             onComplete?.Invoke();
         }, 
@@ -118,6 +139,7 @@ public class GameManager : SingletonMonoBehaviour<GameManager>
             Debug.Log($"Player's new XP amount after victory: {PlayerData.xp}");
 
             OnProgressionChanged?.Invoke();
+            ReactBridge.Instance.OnVictoryConfirmed();
 
             onComplete?.Invoke();  
         },

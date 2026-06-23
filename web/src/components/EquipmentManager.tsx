@@ -7,9 +7,19 @@ import EmptySlot from "./EmptySlot";
 
 const TYPES: EquipmentType[] = EQUIPMENT_TYPE_ORDER;
 
-function EquipmentManager({ initialType, onClose }: { initialType: EquipmentType; onClose: () => void }) {
+function EquipmentManager({ initialType, onClose, onError }: {
+  initialType: EquipmentType; onClose: () => void; onError?: (msg: string) => void;
+}) {
   const { inventory, equip, unequip } = usePlayer();
   const [selectedType, setSelectedType] = useState<EquipmentType>(initialType);
+
+  async function handleEquip(id: string) {
+    try { await equip(id); } catch (err) { onError?.(err instanceof Error ? err.message : "Erro ao equipar item."); }
+  }
+
+  async function handleUnequip(id: string) {
+    try { await unequip(id); } catch (err) { onError?.(err instanceof Error ? err.message : "Erro ao desequipar item."); }
+  }
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -51,7 +61,7 @@ function EquipmentManager({ initialType, onClose }: { initialType: EquipmentType
                   <>
                     <ItemCard equipment={item} size="md" />
                     <button
-                      onClick={(e) => { e.stopPropagation(); unequip(item.id); }}
+                      onClick={(e) => { e.stopPropagation(); handleUnequip(item.id); }}
                       className="absolute top-1 right-1 rounded-md bg-slate-900/80 px-2 text-slate-300 hover:text-red-400"
                     >
                       ✕
@@ -71,7 +81,7 @@ function EquipmentManager({ initialType, onClose }: { initialType: EquipmentType
           ) : (
             <div className="flex flex-wrap justify-center gap-3">
               {available.map((item) => (
-                <ItemCard key={item.id} equipment={item} size="md" onClick={() => equip(item.id)} />
+                <ItemCard key={item.id} equipment={item} size="md" onClick={() => handleEquip(item.id)} />
               ))}
             </div>
           )}

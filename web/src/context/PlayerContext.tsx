@@ -1,15 +1,14 @@
-/* eslint-disable react-hooks/set-state-in-effect */
 /* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { getMe } from "../data/playerService";
 import type { PlayerData } from "../data/playerService";
-import { equipItem, unequipItem, deleteEquipment } from "../data/equipmentService";
+import { equipItem, unequipItem, deleteEquipment } from "../data/inventoryService";
 import { buy, sell, unlist } from "../data/marketService";
-import { applyEquip, applyUnequip, applyDelete, applyList, applyUnlist } from "../lib/inventory";
 import type { Equipment } from "../types/equipment";
 import type { PlayerStatus } from "../types/player";
-import { logout as clearSession } from "../data/authService";
+import { logout as authLogout } from "../data/authService";
+import { hasToken } from "../data/api";
 
 type PlayerContextValue = {
   status: PlayerStatus | null;
@@ -33,58 +32,66 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   async function refresh(): Promise<PlayerData> {
-    setLoading(true);
     const data = await getMe();
     setStatus(data.status);
     setInventory(data.inventory);
-    setLoading(false);
     return data;
   }
 
 
   useEffect(() => {
-    refresh();
+    async function boot() {
+      if (!hasToken()) {
+        setLoading(false)
+        return
+      }
+
+      try {
+        await refresh()
+      } catch {
+        await authLogout()
+      } finally {
+        setLoading(false)
+      }
+    }
+    boot()
   }, []);
 
-  // Fase 4: chama o seam e espelha a mudança no cache. Fase 5: o servidor responde
-  // o estado autoritativo (trocar o apply local por refresh() / resposta da API).
   async function equip(id: string) {
-    await equipItem(id);
-    setInventory((prev) => applyEquip(prev, id));
+    await equipItem(id)
+    await refresh()
   }
 
   async function unequip(id: string) {
-    await unequipItem(id);
-    setInventory((prev) => applyUnequip(prev, id));
+    await unequipItem(id)
+    await refresh()
   }
 
   async function deleteItem(id: string) {
-    await deleteEquipment(id);
-    setInventory((prev) => applyDelete(prev, id));
+    await deleteEquipment(id)
+    await refresh()
   }
 
   async function buyItem(item: Equipment) {
-    await buy(item.id);
-    const price = item.salePrice ?? 0;
-    setStatus((prev) => (prev ? { ...prev, gold: prev.gold - price } : prev));
-    setInventory((prev) => [...prev, { ...item, isEquipped: false, isForSale: false, salePrice: null }]);
+    await buy(item.id)
+    await refresh()
   }
 
   async function sellItem(id: string, price: number) {
-    await sell(id, price);
-    setInventory((prev) => applyList(prev, id, price));
+    await sell(id, price)
+    await refresh()
   }
 
   async function unlistItem(id: string) {
-    await unlist(id);
-    setInventory((prev) => applyUnlist(prev, id));
+    await unlist(id)
+    await refresh()
   }
 
   async function logout() {
-    await clearSession();
-    setStatus(null);
-    setInventory([]);
-    setLoading(false);
+    await authLogout()
+    setStatus(null)
+    setInventory([])
+    setLoading(false)
   }
 
   return (

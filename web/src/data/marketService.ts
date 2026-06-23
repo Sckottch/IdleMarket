@@ -1,22 +1,19 @@
 import type { Equipment } from "../types/equipment";
-import { fixtureListings } from "./fixtures";
+import { get, post } from "./api";
 
 export async function getListings(): Promise<Equipment[]> {
-  // Fase 5: GET /api/market/list
-  return fixtureListings;
+  const data = await get<Equipment[]>("/market/list")
+  return data
 }
 
 export async function buy(itemId: string): Promise<void> {
-  // Fase 5: POST /api/market/buy (transação autoritativa no backend)
-  void itemId;
+  await post<void>("/market/buy", { itemId })
 }
 
 export async function sell(itemId: string, price: number): Promise<void> {
-  // Fase 5: POST /api/market/sell
-  void itemId; void price;
+  await post<void>("/market/sell", { itemId, price })
 }
 
 export async function unlist(itemId: string): Promise<void> {
-  // Fase 5: POST /api/market/unlist — TODO: rota nova, ainda não existe no backend
-  void itemId;
+  await post<void>("/market/unlist", { itemId })
 }

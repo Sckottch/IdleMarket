@@ -1,7 +1,5 @@
 import type { Equipment, StatType } from "../types/equipment";
 
-// Stats-base do player — espelham PlayerStats.asset (CharacterBaseSO) do jogo Unity.
-// O backend não guarda os stats-base; este cálculo é display, não regra cheatável.
 const PLAYER_BASE = {
   healthBase: 200, healthPerLevel: 50,
   attackBase: 20, attackPerLevel: 5,

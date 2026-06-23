@@ -25,3 +25,33 @@ body {
 .toast-pop {
     animation: toast-in 150ms ease-out;
 }
+
+/* Reserva o espaço da scrollbar sempre, então o conteúdo não "pula" quando ela
+   aparece/some (mantém a distribuição dos itens estável nas grades centralizadas). */
+.overflow-y-auto,
+.overflow-auto,
+.overflow-y-scroll {
+    scrollbar-gutter: stable;
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+}
+
+/* WebKit (Chrome/Edge) */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.35);
+    border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 163, 184, 0.55);
+}

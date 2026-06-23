@@ -1,6 +1,6 @@
 import type { Equipment } from "../types/equipment";
 import type { PlayerStatus } from "../types/player";
-import { fixtureInventory, fixturePlayer } from "./fixtures";
+import { get } from "./api";
 
 export type PlayerData = {
     status: PlayerStatus;
@@ -8,5 +8,6 @@ export type PlayerData = {
 }
 
 export async function getMe(): Promise<PlayerData> {
-    return { status: fixturePlayer, inventory: fixtureInventory}
+    const data = await get<PlayerData>("/player/me")
+    return data
 }

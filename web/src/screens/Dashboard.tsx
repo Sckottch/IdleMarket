@@ -2,9 +2,11 @@ import { usePlayer } from "../context/PlayerContext";
 import ItemCard from "../components/ItemCard";
 import ItemModal from "../components/ItemModal";
 import EquipmentFilters from "../components/EquipmentFilters";
+import Toast from "../components/Toast";
+import { useToast } from "../hooks/useToast";
 import { useState } from "react";
 import UserIcon from "../assets/icons/userIcons/userIcon.png";
-import { sortInventory } from "../lib/inventory";
+import { sortInventory, sortByTypeOrder } from "../lib/inventory";
 import { emptyFilters, filterEquipment, type Filters } from "../lib/equipmentFilters";
 
 function Dashboard() {
@@ -14,6 +16,15 @@ function Dashboard() {
   const selectedItem = inventory.find((i) => i.id === selectedId) ?? null;
 
   const [filters, setFilters] = useState<Filters>(emptyFilters);
+  const { toast, showToast } = useToast();
+
+  async function runAction(action: () => Promise<void>) {
+    try {
+      await action();
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "Não foi possível concluir a ação.");
+    }
+  }
 
   if (loading || !status) {
     return <div className="min-h-screen bg-slate-950 text-slate-100 p-8">Carregando...</div>;
@@ -35,8 +46,8 @@ function Dashboard() {
         <p> {status.xp}/{status.xpForNextLevel}</p>
         <p>Ouro: {status.gold}</p>
 
-        <div className="mt-auto flex flex-col-reverse gap-4">
-          {inventory.filter(i => i.isEquipped).map((eq) => (
+        <div className="mt-auto flex flex-col gap-4">
+          {sortByTypeOrder(inventory.filter(i => i.isEquipped)).map((eq) => (
             <ItemCard key={eq.id} equipment={eq} size="md" onClick={() => setSelectedId(eq.id)} />
           ))}
         </div>
@@ -47,7 +58,7 @@ function Dashboard() {
         <EquipmentFilters value={filters} onChange={setFilters} showRating showRarity />
       </div>
 
-      <main className="flex-1 min-h-0 overflow-y-auto p-6">
+      <main className="flex-1 min-h-0 overflow-y-auto px-2 py-6">
         <div className="flex flex-wrap gap-4">
           {sortInventory(filterEquipment(inventory.filter((i) => !i.isForSale), filters)).map((eq) => (
             <ItemCard key={eq.id} equipment={eq} size="lg" onClick={() => setSelectedId(eq.id)} />
@@ -59,11 +70,13 @@ function Dashboard() {
         <ItemModal
           item={selectedItem}
           onClose={() => setSelectedId(null)}
-          onEquip={equip}
-          onUnequip={unequip}
-          onDelete={(id) => { deleteItem(id); setSelectedId(null); }}
+          onEquip={(id) => runAction(() => equip(id))}
+          onUnequip={(id) => runAction(() => unequip(id))}
+          onDelete={(id) => runAction(async () => { await deleteItem(id); setSelectedId(null); })}
         />
       )}
+
+      <Toast toast={toast} />
 
     </div>
   );

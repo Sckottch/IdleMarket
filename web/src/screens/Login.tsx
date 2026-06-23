@@ -1,8 +1,11 @@
 import { useState, type FormEvent } from "react"
 import { Link, useNavigate } from "react-router"
 import { login } from "../data/authService"
+import { usePlayer } from "../context/PlayerContext"
 
 function Login() {
+    const { refresh } = usePlayer()
+
     const [username, setUsername] = useState("")
     const [password, setPassword] = useState("")
     const [error, setError] = useState<string | null>(null)
@@ -13,6 +16,7 @@ function Login() {
         setError(null)
         try {
             await login(username, password)
+            await refresh()
             navigate("/game")
         } catch (err) {
             setError(err instanceof Error ? err.message : "Erro ao entrar")

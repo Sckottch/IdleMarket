@@ -3,11 +3,14 @@ import { Link } from "react-router";
 import { usePlayer } from "../context/PlayerContext";
 import type { Equipment, EquipmentType, StatType } from "../types/equipment";
 import { computeCharacterStats } from "../lib/characterStats";
-import { sortByTypeOrder } from "../lib/inventory";
+import { sortByTypeOrder, EQUIPMENT_TYPE_ORDER } from "../lib/inventory";
 import { statIcon } from "../lib/equipmentVisuals";
 import ItemCard from "../components/ItemCard";
 import DropCard from "../components/DropCard";
+import EmptySlot from "../components/EmptySlot";
 import EquipmentManager from "../components/EquipmentManager";
+import Toast from "../components/Toast";
+import { useToast } from "../hooks/useToast";
 
 const STAT_LABELS: Record<StatType, string> = {
   Health: "Vida", Attack: "Ataque", Defense: "Defesa",
@@ -35,6 +38,7 @@ const FIXTURE_DROPS: Equipment[] = [
 function Game() {
   const { status, inventory, loading } = usePlayer();
   const [managerType, setManagerType] = useState<EquipmentType | null>(null);
+  const { toast, showToast } = useToast();
 
   if (loading || !status) {
     return <div className="h-full bg-slate-950 p-8 text-slate-100">Carregando...</div>;
@@ -94,9 +98,16 @@ function Game() {
 
         <div className="w-[65vw] rounded-lg border border-slate-700 bg-slate-900 p-4 flex items-center gap-4">
           <div className="flex flex-wrap gap-3">
-            {equipped.map((eq) => (
-              <ItemCard key={eq.id} equipment={eq} size="md" onClick={() => setManagerType(eq.equipmentType)} />
-            ))}
+            {EQUIPMENT_TYPE_ORDER.map((type) => {
+              const item = equipped.find((eq) => eq.equipmentType === type);
+              return item ? (
+                <ItemCard key={type} equipment={item} size="md" onClick={() => setManagerType(type)} />
+              ) : (
+                <div key={type} onClick={() => setManagerType(type)} className="cursor-pointer">
+                  <EmptySlot type={type} />
+                </div>
+              );
+            })}
           </div>
           <Link
             to="/dashboard"
@@ -108,8 +119,10 @@ function Game() {
       </div>
 
       {managerType && (
-        <EquipmentManager initialType={managerType} onClose={() => setManagerType(null)} />
+        <EquipmentManager initialType={managerType} onClose={() => setManagerType(null)} onError={showToast} />
       )}
+
+      <Toast toast={toast} />
     </div>
   );
 }

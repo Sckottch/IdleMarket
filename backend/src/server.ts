@@ -1,5 +1,6 @@
 import Fastify from "fastify"
 import fastifyJwt from "@fastify/jwt"
+import fastifyCors from "@fastify/cors"
 import { authRoutes } from "./routes/auth.js"
 import { battleRoutes } from "./routes/battle.js"
 import { inventoryRoute } from "./routes/inventory.js"
@@ -7,6 +8,11 @@ import { playerRoute } from "./routes/player.js"
 import { marketRoute } from "./routes/market.js"
 
 const app = Fastify({ logger: true })
+
+await app.register(fastifyCors, {
+    origin: "http://localhost:5173",
+    methods: ["GET", "POST", "DELETE"],
+})
 
 app.register(fastifyJwt, { secret: process.env.JWT_SECRET! })
 

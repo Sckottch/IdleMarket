@@ -1,6 +1,6 @@
 # Dashboard
 
-> Hub de perfil e inventário (`Dashboard.tsx`). Roda dentro do `MainLayout` (com [[Componentes#TopNav|TopNav]]). É também o destino do botão **Gerenciar** da [[Jogo|tela do Jogo]].
+> Hub de perfil e inventário (`Dashboard.tsx`). Roda dentro do `MainLayout` (com [[Componentes#TopNav|TopNav]]), que é por onde se chega até ele.
 
 ## Layout — 3 colunas
 

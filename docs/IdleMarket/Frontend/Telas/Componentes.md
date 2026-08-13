@@ -22,7 +22,7 @@ A barra de navegação superior (`TopNav.tsx`), renderizada pelo `MainLayout` em
 
 ## EquipmentManager
 
-Popup de gerenciamento de equipamentos, aberto a partir da [[Jogo|tela do Jogo]] (clicando num equipado ou no botão Gerenciar leva ao Dashboard; clicando num card de equipado abre este manager no tipo correspondente).
+Popup de gerenciamento de equipamentos, aberto a partir da [[Jogo|tela do Jogo]] clicando num card de equipado — abre já no tipo correspondente.
 
 - **Tamanho fixo** (`w-280 h-160`, limitado à viewport); cabeçalho e linha de slots ficam fixos, só a grade rola.
 - **Slots por tipo:** uma linha com os 4 tipos na ordem espada→capacete→armadura→botas. O slot mostra o `ItemCard` do item equipado (com um ✕ pra desequipar na hora) ou um `EmptySlot` (placeholder tracejado com o ícone do tipo) quando vazio. Clicar num slot seleciona aquele tipo.

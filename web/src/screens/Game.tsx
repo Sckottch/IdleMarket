@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router";
 import { usePlayer } from "../context/PlayerContext";
 import { useGoldFx } from "../context/GoldFxContext";
 import { useFloatingNumber } from "../hooks/useFloatingNumber";
@@ -25,6 +24,12 @@ const STAT_LABELS: Record<StatType, string> = {
 const STAT_ORDER: StatType[] = ["Health", "Attack", "Defense", "Speed", "CriticalChance", "CriticalDamage"];
 
 const MAX_DROPS = 10;
+
+// 16rem = o cromo vertical (topo, barra de equipados, paddings) mais uma folga,
+// descontado da altura antes de aplicar o 16/9 do jogo.
+const GAME_WIDTH = "w-[min(65vw,calc((100dvh_-_16rem)*16/9))]";
+
+const BAR_MIN_WIDTH = "min-w-[min(65vw,calc((100dvh_-_16rem)*16/9))]";
 
 function formatStatValue(stat: StatType, value: number): string {
   if (stat === "CriticalChance" || stat === "CriticalDamage") return `${Math.round(value)}%`;
@@ -151,30 +156,22 @@ function Game() {
         </div>
       </aside>
 
-      <div className="flex-1 overflow-y-auto px-4 py-2 flex flex-col items-center gap-1">
-        <div className="w-[65vw] aspect-video flex items-center justify-center overflow-hidden rounded-lg ring-2 ring-inset ring-slate-700 bg-slate-900">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-1 flex flex-col items-center gap-1">
+        <div className={`${GAME_WIDTH} shrink-0 aspect-video flex items-center justify-center overflow-hidden rounded-lg ring-2 ring-inset ring-slate-700 bg-slate-900`}>
           <UnityGame/>
         </div>
 
-        <div className="w-[65vw] rounded-lg border border-slate-700 bg-slate-900 p-4 flex items-center gap-4">
-          <div className="flex flex-wrap gap-3">
-            {EQUIPMENT_TYPE_ORDER.map((type) => {
-              const item = equipped.find((eq) => eq.equipmentType === type);
-              return item ? (
-                <ItemCard key={type} equipment={item} size="md" onClick={() => setManagerType(type)} />
-              ) : (
-                <div key={type} onClick={() => setManagerType(type)} className="cursor-pointer">
-                  <EmptySlot type={type} />
-                </div>
-              );
-            })}
-          </div>
-          <Link
-            to="/dashboard"
-            className="ml-auto shrink-0 rounded-md bg-fuchsia-700 px-4 py-2 text-sm font-bold hover:bg-fuchsia-600 transition"
-          >
-            Gerenciar
-          </Link>
+        <div className={`${BAR_MIN_WIDTH} w-fit shrink-0 rounded-lg border border-slate-700 bg-slate-900 p-2 flex items-center justify-center gap-1`}>
+          {EQUIPMENT_TYPE_ORDER.map((type) => {
+            const item = equipped.find((eq) => eq.equipmentType === type);
+            return item ? (
+              <ItemCard key={type} equipment={item} size="md" onClick={() => setManagerType(type)} />
+            ) : (
+              <div key={type} onClick={() => setManagerType(type)} className="cursor-pointer">
+                <EmptySlot type={type} />
+              </div>
+            );
+          })}
         </div>
       </div>
 

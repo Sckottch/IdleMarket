@@ -129,3 +129,9 @@
 - **O quê:** o Pixel Perfect Camera ficou em **stretch fill**.
 - **Por quê:** pro jogo preencher o canvas embutido na página, já que o tamanho é ditado pelo container React (não há mais escala por múltiplo inteiro).
 - **Impacto:** [[Interface]], [[Jogo]].
+
+## Botão Gerenciar removido da barra de equipados (pós-Fase 5)
+
+- **O quê:** o botão **Gerenciar** saiu do painel inferior da [[Jogo|tela do Jogo]]. A barra ficou só com os 4 equipados, em card `md` de tamanho fixo.
+- **Por quê:** os 4 cards `md` mais o botão pediam ~1216px de largura, e o painel é `65vw` — só cabiam em uma linha numa viewport de ~1870px pra cima. A 1080p isso passava por poucos pixels, e qualquer coisa (gaps do compositor, janela não maximizada, scrollbar) quebrava a barra em duas linhas, comendo a altura da área do jogo. As duas saídas eram encolher os cards ou tirar o botão; **encolher não é opção** — o tamanho do card foi ajustado à mão pro conteúdo interno caber, e apertado os sub-status deixam de aparecer direito. Tirar o botão libera ~124px e resolve com folga.
+- **Impacto:** [[Jogo]], [[Dashboard]], [[Componentes]]. Nenhuma navegação se perde: o Dashboard continua a um clique pela [[Componentes#TopNav|TopNav]], e clicar num slot segue abrindo o [[Componentes#EquipmentManager|EquipmentManager]] no tipo daquele item.

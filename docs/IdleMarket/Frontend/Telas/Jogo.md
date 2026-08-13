@@ -15,13 +15,16 @@ Faixa fixa à esquerda (`w-80`, sem scroll) com:
 - **Drops:** feed dos últimos equipamentos obtidos, em `DropCard` compacto (ícone + raridade + rating). Limitado aos últimos itens (`MAX_DROPS`).
 
 ### Área do jogo (centro)
-O **canvas Unity WebGL**, embutido via `react-unity-webgl` (componente `UnityGame`), numa caixa 16:9 (`w-[65vw] aspect-video`). A caixa usa `overflow-hidden` + `ring` interno e o canvas preenche `100%` dela — assim o jogo fica contido na borda arredondada sem vazar. Enquanto o build não carrega (`isLoaded`), mostra um "Carregando o jogo...".
+O **canvas Unity WebGL**, embutido via `react-unity-webgl` (componente `UnityGame`), numa caixa 16:9 (`aspect-video`). A caixa usa `overflow-hidden` + `ring` interno e o canvas preenche `100%` dela — assim o jogo fica contido na borda arredondada sem vazar. Enquanto o build não carrega (`isLoaded`), mostra um "Carregando o jogo...".
+
+A largura da caixa é `min(65vw, (100dvh - 16rem) × 16/9)`: o alvo é 65vw, mas em janela baixa quem manda é a altura útil — os 16rem descontados são o cromo vertical (TopNav, painel inferior, paddings). Sem esse limite, `65vw` derivava a altura só da largura e o conteúdo estourava a vertical em janelas mais baixas.
 
 ### Painel inferior
-Abaixo da área do jogo: os equipados em cards `md` (ordenados espada→capacete→armadura→botas via `sortByTypeOrder`) + botão **Gerenciar**.
+Abaixo da área do jogo: só os equipados, em cards `md` (ordenados espada→capacete→armadura→botas via `sortByTypeOrder`), distribuídos com `justify-between`.
 
 - Clicar num card de equipado abre o [[Componentes#EquipmentManager|EquipmentManager]] **já no tipo daquele item**.
-- O botão **Gerenciar** leva ao [[Dashboard]].
+- O card é **fixo em `md`** e não encolhe: o tamanho foi ajustado pro conteúdo interno (sub-status inclusive) caber. É por isso que o botão **Gerenciar** saiu daqui — ver [[Decisões]]. O [[Dashboard]] fica acessível pela [[Componentes#TopNav|TopNav]].
+- O painel é `w-fit` com `min-w` igual à largura da caixa do jogo: acompanha o jogo enquanto há espaço e, quando a altura aperta e o jogo encolhe, para de encolher junto — os 4 cards nunca quebram linha. O preço é o painel ficar um pouco mais largo que o jogo nessas janelas, aceito conscientemente por ser melhor que a quebra.
 
 ## Stats calculados no front
 

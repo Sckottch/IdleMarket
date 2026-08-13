@@ -6,6 +6,7 @@
 
 ## Mapa do Projeto
 
+[[Setup e Execução]]
 [[Arquitetura e Fluxo de Dados]]
 [[Integração API]]
 [[Documentação Frontend]]
